@@ -100,6 +100,7 @@ export default function PaymentsPage() {
     date: new Date().toISOString().split('T')[0],
     paymentMode: 'cash',
     notes: '',
+    tags: [] as string[],
   });
 
   // Security deposit form
@@ -112,6 +113,7 @@ export default function PaymentsPage() {
     receivedDate: new Date().toISOString().split('T')[0],
     paymentMode: 'cash',
     notes: '',
+    tags: [] as string[],
   });
 
   // Set initial section based on URL or available features

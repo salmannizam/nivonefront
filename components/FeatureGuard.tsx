@@ -17,7 +17,7 @@ export default function FeatureGuard({ feature, children, fallback }: FeatureGua
 
   useEffect(() => {
     if (!loading && !isFeatureEnabled(feature)) {
-      showError(`This feature is not available for your account`);
+      showError(null, 'This feature is not available for your account');
       router.push('/dashboard');
     }
   }, [feature, isFeatureEnabled, loading, router]);

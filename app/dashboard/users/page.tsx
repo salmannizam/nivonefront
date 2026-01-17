@@ -238,7 +238,7 @@ export default function UsersPage() {
                   required
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  disabled={editing && user?.role !== 'OWNER'}
+                  disabled={!!(editing && user?.role !== 'OWNER')}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-500 dark:disabled:text-gray-400 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="STAFF">Staff</option>

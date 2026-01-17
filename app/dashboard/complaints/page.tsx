@@ -207,6 +207,7 @@ export default function ComplaintsPage() {
               category: 'maintenance',
               priority: 'medium',
               status: 'open',
+              notes: '',
             });
           }}
           className="w-full sm:w-auto bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 dark:from-orange-500 dark:via-amber-500 dark:to-yellow-500 text-white px-6 py-3 rounded-xl hover:from-orange-700 hover:via-amber-700 hover:to-yellow-700 dark:hover:from-orange-600 dark:hover:via-amber-600 dark:hover:to-yellow-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"

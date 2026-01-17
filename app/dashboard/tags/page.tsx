@@ -49,7 +49,7 @@ export default function TagsPage() {
       setTags(response.data);
     } catch (error) {
       logError(error, 'Failed to load tags');
-      showError('Failed to load tags');
+      showError(error, 'Failed to load tags');
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export default function TagsPage() {
       loadTags();
     } catch (error: any) {
       logError(error, 'Failed to save tag');
-      showError(error.response?.data?.message || 'Failed to save tag');
+      showError(error, 'Failed to save tag');
     }
   };
 
@@ -93,7 +93,7 @@ export default function TagsPage() {
       loadTags();
     } catch (error: any) {
       logError(error, 'Failed to delete tag');
-      showError(error.response?.data?.message || 'Failed to delete tag');
+      showError(error, 'Failed to delete tag');
     }
   };
 
@@ -104,7 +104,7 @@ export default function TagsPage() {
       loadTags();
     } catch (error: any) {
       logError(error, 'Failed to update tag');
-      showError('Failed to update tag');
+      showError(error, 'Failed to update tag');
     }
   };
 

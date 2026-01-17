@@ -93,7 +93,7 @@ export default function NotificationsSettingsPage() {
       setTenantConfig(configData);
     } catch (error) {
       logError(error, 'Failed to load notification settings');
-      showError('Failed to load notification settings');
+      showError(error, 'Failed to load notification settings');
     } finally {
       setLoading(false);
     }
@@ -114,7 +114,7 @@ export default function NotificationsSettingsPage() {
       showSuccess('Notification settings saved successfully');
     } catch (error) {
       logError(error, 'Failed to save notification settings');
-      showError('Failed to save notification settings');
+      showError(error, 'Failed to save notification settings');
     } finally {
       setSaving(false);
     }

@@ -35,7 +35,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     const response = await authService.login({ email, password });
     setUser(response.user);
-    return response; // Return response so caller can check role
   };
 
   const register = async (data: { email: string; password: string; name: string }) => {

@@ -70,7 +70,7 @@ export default function SmsTemplatesPage() {
       setTemplates(response.data);
     } catch (error) {
       logError(error, 'Failed to load SMS templates');
-      showError('Failed to load SMS templates');
+      showError(error, 'Failed to load SMS templates');
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,7 @@ export default function SmsTemplatesPage() {
       loadTemplates();
     } catch (error) {
       logError(error, 'Failed to save SMS template');
-      showError('Failed to save SMS template');
+      showError(error, 'Failed to save SMS template');
     }
   };
 
@@ -118,7 +118,7 @@ export default function SmsTemplatesPage() {
       loadTemplates();
     } catch (error) {
       logError(error, 'Failed to delete SMS template');
-      showError('Failed to delete SMS template');
+      showError(error, 'Failed to delete SMS template');
     }
   };
 

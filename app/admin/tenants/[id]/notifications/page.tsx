@@ -49,7 +49,7 @@ export default function TenantNotificationsPage() {
       });
     } catch (error) {
       logError(error, 'Failed to load tenant notification config');
-      showError('Failed to load notification configuration');
+      showError(error, 'Failed to load notification configuration');
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export default function TenantNotificationsPage() {
       showSuccess('Notification configuration updated successfully');
     } catch (error) {
       logError(error, 'Failed to update notification config');
-      showError('Failed to update notification configuration');
+      showError(error, 'Failed to update notification configuration');
     } finally {
       setSaving(false);
     }
@@ -113,7 +113,7 @@ export default function TenantNotificationsPage() {
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={config.emailEnabled}
+                  checked={config.emailEnabled === true}
                   onChange={(e) => setConfig({ ...config, emailEnabled: e.target.checked })}
                   className="sr-only peer"
                 />
@@ -144,7 +144,7 @@ export default function TenantNotificationsPage() {
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={config.smsEnabled}
+                  checked={config.smsEnabled === true}
                   onChange={(e) => setConfig({ ...config, smsEnabled: e.target.checked })}
                   className="sr-only peer"
                 />

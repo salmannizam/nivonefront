@@ -41,7 +41,7 @@ export default function PersonalNotesPage() {
       setNotes(response.data);
     } catch (error) {
       logError(error, 'Failed to load notes');
-      showError('Failed to load notes');
+      showError(error, 'Failed to load notes');
     } finally {
       setLoading(false);
     }
@@ -73,7 +73,7 @@ export default function PersonalNotesPage() {
       loadPinnedStats();
     } catch (error: any) {
       logError(error, 'Failed to save note');
-      showError(error.response?.data?.message || 'Failed to save note');
+      showError(error, 'Failed to save note');
     }
   };
 
@@ -95,7 +95,7 @@ export default function PersonalNotesPage() {
       loadPinnedStats();
     } catch (error: any) {
       logError(error, 'Failed to delete note');
-      showError(error.response?.data?.message || 'Failed to delete note');
+      showError(error, 'Failed to delete note');
     }
   };
 
@@ -109,7 +109,7 @@ export default function PersonalNotesPage() {
       loadPinnedStats();
     } catch (error: any) {
       logError(error, 'Failed to update note');
-      showError(error.response?.data?.message || 'Failed to update note');
+      showError(error, 'Failed to update note');
     }
   };
 
@@ -189,7 +189,7 @@ export default function PersonalNotesPage() {
                   checked={formData.isPinned}
                   onChange={(e) => {
                     if (e.target.checked && pinnedStats.count >= pinnedStats.max && !editing?.isPinned) {
-                      showError(`Maximum ${pinnedStats.max} pinned notes allowed`);
+                      showError(null, `Maximum ${pinnedStats.max} pinned notes allowed`);
                       return;
                     }
                     setFormData({ ...formData, isPinned: e.target.checked });
