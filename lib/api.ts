@@ -30,16 +30,7 @@ api.interceptors.request.use(
   (config) => {
     // Cookies are sent automatically with withCredentials: true
     // No need to manually set Authorization header
-
-    // Add tenant query parameter for localhost testing (if present in URL)
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const tenantSlug = urlParams.get('tenant');
-      if (tenantSlug && !config.url?.includes('?tenant=')) {
-        const separator = config.url?.includes('?') ? '&' : '?';
-        config.url = `${config.url}${separator}tenant=${tenantSlug}`;
-      }
-    }
+    // Tenant is extracted from JWT token on backend, no need to send from frontend
 
     // Skip feature check for admin routes (Super Admin)
     const url = config.url || '';
