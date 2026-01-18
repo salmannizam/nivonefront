@@ -43,6 +43,11 @@ api.interceptors.request.use(
       return config;
     }
 
+    // Skip feature check for user profile endpoints - users should always be able to update their own profile
+    if (url.includes('/users/me')) {
+      return config;
+    }
+
     // Skip feature check for residents API endpoint - it's needed for many features (dropdowns, etc.)
     // Only check feature for the residents page route, not the API endpoint
     // This must happen BEFORE getFeatureFromPath is called
