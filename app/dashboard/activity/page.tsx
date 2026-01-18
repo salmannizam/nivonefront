@@ -67,7 +67,7 @@ export default function ActivityPage() {
     return 'text-gray-600 dark:text-gray-400';
   };
 
-  const formatDate = (dateString: string) => {
+  const formatRelativeDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -140,7 +140,7 @@ export default function ActivityPage() {
                         {activity.message}
                       </p>
                       <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                        {formatDate(activity.createdAt)}
+                        {formatRelativeDate(activity.createdAt)}
                       </span>
                     </div>
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">

@@ -136,7 +136,7 @@ export default function UserPermissionsPage() {
   }
 
   // Check if user is trying to edit their own permissions
-  const isEditingSelf = currentUser && currentUser.id === userId;
+  const isEditingSelf = !!(currentUser && currentUser.id === userId);
 
   // Group features by category
   const featuresByCategory: Record<string, string[]> = {};
