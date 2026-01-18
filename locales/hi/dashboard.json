@@ -1,0 +1,13 @@
+{
+  "title": "डैशबोर्ड",
+  "overview": "अवलोकन",
+  "statistics": "आंकड़े",
+  "recentActivity": "हाल की गतिविधि",
+  "quickActions": "त्वरित कार्रवाई",
+  "emptyState": {
+    "noData": "कोई डेटा उपलब्ध नहीं",
+    "noResidents": "कोई निवासी नहीं मिला",
+    "noRooms": "कोई कमरा नहीं मिला",
+    "noBuildings": "कोई इमारत नहीं मिली"
+  }
+}

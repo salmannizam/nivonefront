@@ -1,0 +1,19 @@
+{
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "minLength": "Minimum {min} characters required",
+    "maxLength": "Maximum {max} characters allowed",
+    "passwordMismatch": "Passwords do not match",
+    "invalidFormat": "Invalid format"
+  },
+  "placeholders": {
+    "search": "Search...",
+    "select": "Select an option...",
+    "enterName": "Enter name",
+    "enterEmail": "Enter email",
+    "enterPhone": "Enter phone number",
+    "enterAddress": "Enter address",
+    "searchByNameOrAddress": "Search by name or address"
+  }
+}

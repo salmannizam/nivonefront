@@ -5,7 +5,8 @@ import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
 import TagSelector from '@/components/TagSelector';
-import { logError } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n-context';
+import { logError, showSuccess, showError } from '@/lib/utils';
 
 interface Room {
   _id: string;
@@ -27,6 +28,7 @@ interface Building {
 }
 
 export default function RoomsPage() {
+  const { t } = useI18n();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,8 +78,10 @@ export default function RoomsPage() {
     try {
       if (editing) {
         await api.patch(`/rooms/${editing._id}`, formData);
+        showSuccess(t('pages.rooms.updatedSuccess'));
       } else {
         await api.post('/rooms', formData);
+        showSuccess(t('pages.rooms.createdSuccess'));
       }
       setShowForm(false);
       setEditing(null);
@@ -92,7 +96,7 @@ export default function RoomsPage() {
       });
       loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to save room');
+      showError(error, error.response?.data?.message || t('messages.saveError'));
     }
   };
 
@@ -111,12 +115,13 @@ export default function RoomsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this room?')) return;
+    if (!confirm(t('pages.rooms.deleteConfirm'))) return;
     try {
       await api.delete(`/rooms/${id}`);
+      showSuccess(t('pages.rooms.deletedSuccess'));
       loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to delete room');
+      showError(error, error.response?.data?.message || t('messages.deleteError'));
     }
   };
 
@@ -125,7 +130,7 @@ export default function RoomsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">Loading rooms...</div>
+          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('labels.loading')}</div>
         </div>
       </div>
     );
@@ -134,27 +139,27 @@ export default function RoomsPage() {
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: 'Search',
-      placeholder: 'Search by room number',
+      label: t('buttons.search'),
+      placeholder: t('forms.placeholders.search'),
       advanced: false,
     },
     buildingId: {
       type: 'select' as const,
-      label: 'Building',
+      label: t('pages.rooms.building'),
       options: [
-        { label: 'All Buildings', value: '' },
+        { label: t('labels.all'), value: '' },
         ...buildings.map((b) => ({ label: b.name, value: b._id })),
       ],
       advanced: false,
     },
     capacityRange: {
       type: 'numberRange' as const,
-      label: 'Capacity Range',
+      label: t('pages.rooms.capacity'),
       advanced: true,
     },
     occupiedRange: {
       type: 'numberRange' as const,
-      label: 'Occupied Range',
+      label: t('pages.rooms.occupied'),
       advanced: true,
     },
   };
@@ -164,7 +169,7 @@ export default function RoomsPage() {
       <div className="animate-fadeIn">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 animate-slideInLeft">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 dark:from-green-400 dark:via-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-            Rooms
+            {t('pages.rooms.title')}
           </h1>
           <button
             onClick={() => {
@@ -182,7 +187,7 @@ export default function RoomsPage() {
             }}
             className="w-full sm:w-auto bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 dark:from-green-500 dark:via-emerald-500 dark:to-teal-500 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 dark:hover:from-green-600 dark:hover:via-emerald-600 dark:hover:to-teal-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
           >
-            + Add Room
+            + {t('pages.rooms.addRoom')}
           </button>
         </div>
 
@@ -198,7 +203,7 @@ export default function RoomsPage() {
         <div className="bg-gradient-to-br from-white via-green-50/30 to-emerald-50/30 dark:from-gray-800 dark:via-green-900/20 dark:to-emerald-900/20 p-4 sm:p-6 rounded-2xl shadow-xl border-2 border-green-100 dark:border-green-900/30 mb-6 animate-slideInUp">
           <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent flex items-center gap-2">
             <span className="text-xl">🏠</span>
-            {editing ? 'Edit Room' : 'Add New Room'}
+            {editing ? t('pages.rooms.editRoom') : t('pages.rooms.addRoom')}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div className="transform transition-all hover:scale-105">
@@ -209,7 +214,7 @@ export default function RoomsPage() {
                 onChange={(e) => setFormData({ ...formData, buildingId: e.target.value })}
                 className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-green-500/50 focus:border-green-500 transition-all shadow-md hover:shadow-lg"
               >
-                <option value="">Select Building</option>
+                <option value="">{t('pages.rooms.selectBuilding')}</option>
                 {buildings.map((b) => (
                   <option key={b._id} value={b._id}>
                     {b.name}
@@ -233,7 +238,7 @@ export default function RoomsPage() {
                 />
               </div>
               <div className="transform transition-all hover:scale-105">
-                <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Room Number</label>
+                <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">{t('pages.rooms.roomNumber')}</label>
                 <input
                   type="text"
                   required
@@ -245,7 +250,7 @@ export default function RoomsPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div className="transform transition-all hover:scale-105">
-                <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Capacity</label>
+                <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">{t('pages.rooms.capacity')}</label>
                 <input
                   type="number"
                   required
@@ -260,7 +265,7 @@ export default function RoomsPage() {
               </div>
               <div className="transform transition-all hover:scale-105">
                 <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">
-                  Default Bed Rent (template only) (₹) <span className="text-gray-500 text-xs font-normal">(Optional)</span>
+                  {t('pages.rooms.defaultBedRent')} <span className="text-gray-500 text-xs font-normal">(Optional)</span>
                 </label>
                 <input
                   type="number"
@@ -280,11 +285,11 @@ export default function RoomsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Tags</label>
+              <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">{t('pages.rooms.tags')}</label>
               <TagSelector
                 tags={formData.tags}
                 onChange={(tags) => setFormData({ ...formData, tags })}
-                placeholder="Add tags (e.g., VIP, Renovated, Corner room)"
+                placeholder={t('forms.placeholders.search')}
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
@@ -292,7 +297,7 @@ export default function RoomsPage() {
                 type="submit"
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 dark:from-green-500 dark:via-emerald-500 dark:to-teal-500 text-white rounded-xl hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 dark:hover:from-green-600 dark:hover:via-emerald-600 dark:hover:to-teal-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
               >
-                {editing ? '✨ Update' : '✨ Create'}
+                {editing ? `✨ ${t('buttons.update')}` : `✨ ${t('buttons.create')}`}
               </button>
               <button
                 type="button"
@@ -302,7 +307,7 @@ export default function RoomsPage() {
                 }}
                 className="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-bold transform hover:scale-105"
               >
-                Cancel
+                {t('buttons.cancel')}
               </button>
             </div>
           </form>
@@ -315,16 +320,16 @@ export default function RoomsPage() {
           <thead className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 dark:from-green-900/30 dark:via-emerald-900/30 dark:to-teal-900/30">
             <tr>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Building
+                {t('pages.rooms.building')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Room
+                {t('pages.rooms.roomNumber')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Floor
+                {t('pages.rooms.floor')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Capacity
+                {t('pages.rooms.capacity')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                 Occupied
@@ -344,7 +349,7 @@ export default function RoomsPage() {
             {rooms.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-lg font-bold">
-                  No rooms found
+                    {t('pages.rooms.noRooms')}
                 </td>
               </tr>
             ) : (
@@ -380,7 +385,7 @@ export default function RoomsPage() {
                           : 'bg-gradient-to-r from-red-400 to-rose-500 text-white shadow-md'
                       }`}
                     >
-                      {room.isAvailable ? '✓ Available' : 'Full'}
+                      {room.isAvailable ? `✓ ${t('pages.rooms.available')}` : t('pages.rooms.occupied')}
                     </span>
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -389,14 +394,14 @@ export default function RoomsPage() {
                         onClick={() => handleEdit(room)}
                         className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                       >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(room._id)}
-                        className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-500 dark:to-rose-500 text-white rounded-lg hover:from-red-700 hover:to-rose-700 dark:hover:from-red-600 dark:hover:to-rose-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
-                      >
-                        Delete
-                      </button>
+                          {t('buttons.edit')}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(room._id)}
+                          className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-500 dark:to-rose-500 text-white rounded-lg hover:from-red-700 hover:to-rose-700 dark:hover:from-red-600 dark:hover:to-rose-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
+                        >
+                          {t('buttons.delete')}
+                        </button>
                     </div>
                   </td>
                 </tr>

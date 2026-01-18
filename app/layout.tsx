@@ -4,6 +4,7 @@ import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { ThemeProvider } from '@/lib/theme-context';
 import { FeatureProvider } from '@/lib/feature-context';
+import { I18nProvider } from '@/lib/i18n-context';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,7 +23,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <AuthProvider>
-            <FeatureProvider>{children}</FeatureProvider>
+            <I18nProvider>
+              <FeatureProvider>{children}</FeatureProvider>
+            </I18nProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

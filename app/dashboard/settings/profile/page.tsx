@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { useI18n } from '@/lib/i18n-context';
 import FeatureGuard from '@/components/FeatureGuard';
+import LanguageSelector from '@/components/LanguageSelector';
 import { showSuccess, showError, logError } from '@/lib/utils';
 
 export default function ProfileSettingsPage() {
   const { user, refreshUser } = useAuth();
+  const { t, language } = useI18n();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -153,6 +156,23 @@ export default function ProfileSettingsPage() {
                     placeholder="+1234567890"
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Language Preference */}
+            <div className="pt-6 border-t-2 border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <span className="text-xl">🌐</span>
+                Language Preference
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Select your preferred language for the interface
+              </p>
+              <div className="flex items-center gap-4">
+                <LanguageSelector />
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  Current: {language === 'en' ? 'English' : 'हिंदी'}
+                </span>
               </div>
             </div>
 

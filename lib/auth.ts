@@ -26,6 +26,7 @@ export interface User {
   name: string;
   role: string;
   tenantId?: string; // Optional for Super Admin
+  preferredLanguage?: 'en' | 'hi'; // User's preferred language
 }
 
 export interface AuthResponse {

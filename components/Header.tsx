@@ -3,10 +3,13 @@
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/lib/theme-context';
+import { useI18n } from '@/lib/i18n-context';
+import LanguageSelector from './LanguageSelector';
 
 export default function Header() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t } = useI18n();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -26,6 +29,7 @@ export default function Header() {
               <span className="hidden sm:inline text-sm text-gray-600 dark:text-gray-300">
                 {user.email}
               </span>
+              <LanguageSelector />
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
@@ -55,7 +59,7 @@ export default function Header() {
                 onClick={handleLogout}
                 className="px-3 sm:px-4 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
               >
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline">{t('common.buttons.logout')}</span>
                 <span className="sm:hidden">Out</span>
               </button>
             </>

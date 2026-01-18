@@ -1,0 +1,19 @@
+{
+  "validation": {
+    "required": "यह फ़ील्ड आवश्यक है",
+    "email": "कृपया एक वैध ईमेल पता दर्ज करें",
+    "minLength": "न्यूनतम {min} वर्ण आवश्यक",
+    "maxLength": "अधिकतम {max} वर्ण अनुमत",
+    "passwordMismatch": "पासवर्ड मेल नहीं खाते",
+    "invalidFormat": "अमान्य प्रारूप"
+  },
+  "placeholders": {
+    "search": "खोजें...",
+    "select": "एक विकल्प चुनें...",
+    "enterName": "नाम दर्ज करें",
+    "enterEmail": "ईमेल दर्ज करें",
+    "enterPhone": "फोन नंबर दर्ज करें",
+    "enterAddress": "पता दर्ज करें",
+    "searchByNameOrAddress": "नाम या पते से खोजें"
+  }
+}

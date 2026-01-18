@@ -5,7 +5,8 @@ import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
 import TagSelector from '@/components/TagSelector';
-import { logError, formatDate } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n-context';
+import { logError, formatDate, showSuccess, showError } from '@/lib/utils';
 
 interface Resident {
   _id: string;
@@ -55,6 +56,7 @@ interface Bed {
 }
 
 export default function ResidentsPage() {
+  const { t } = useI18n();
   const [residents, setResidents] = useState<Resident[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [beds, setBeds] = useState<Bed[]>([]);
@@ -158,7 +160,7 @@ export default function ResidentsPage() {
       setAvailableBeds([]);
       loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to save resident');
+      showError(error, error.response?.data?.message || t('messages.saveError'));
     }
   };
 
@@ -197,7 +199,7 @@ export default function ResidentsPage() {
         depositDeductionReason: vacateFormData.depositDeductionReason || undefined,
         settlementNotes: vacateFormData.settlementNotes || undefined,
       });
-      alert(`Resident vacated successfully. Settlement: Pending Rent: ₹${response.data.settlement?.pendingRent || 0}, Security Deposit: ₹${response.data.settlement?.securityDeposit || 0}`);
+      showSuccess(t('pages.residents.vacatedSuccess'));
       setShowVacateForm(false);
       setVacatingResident(null);
       loadData();
@@ -260,37 +262,35 @@ export default function ResidentsPage() {
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: 'Search',
-      placeholder: 'Search by name, phone, or email',
+      label: t('buttons.search'),
+      placeholder: t('forms.placeholders.search'),
       advanced: false,
     },
     status: {
       type: 'select' as const,
-      label: 'Status',
+      label: t('labels.status'),
       options: [
-        { label: 'All', value: '' },
-        { label: 'Active', value: 'ACTIVE' },
-        { label: 'Notice Given', value: 'NOTICE_GIVEN' },
-        { label: 'Vacated', value: 'VACATED' },
-        { label: 'Suspended', value: 'SUSPENDED' },
+        { label: t('labels.all'), value: '' },
+        { label: t('pages.residents.active'), value: 'ACTIVE' },
+        { label: t('pages.residents.vacated'), value: 'VACATED' },
       ],
       advanced: false,
     },
     roomId: {
       type: 'select' as const,
-      label: 'Room',
+      label: t('pages.residents.room'),
       options: [
-        { label: 'All Rooms', value: '' },
+        { label: t('labels.all'), value: '' },
         ...rooms.map((r) => ({ label: r.roomNumber, value: r._id })),
       ],
       advanced: false,
     },
     bedId: {
       type: 'select' as const,
-      label: 'Bed',
+      label: t('pages.residents.bed'),
       options: [
-        { label: 'All Beds', value: '' },
-        ...beds.map((b) => ({ label: `Bed ${b.bedNumber} (${b.roomNumber})`, value: b._id })),
+        { label: t('labels.all'), value: '' },
+        ...beds.map((b) => ({ label: `${t('pages.residents.bed')} ${b.bedNumber} (${b.roomNumber})`, value: b._id })),
       ],
       advanced: true,
     },
@@ -315,7 +315,7 @@ export default function ResidentsPage() {
       <div className="animate-fadeIn">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 animate-slideInLeft">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
-            Residents
+            {t('pages.residents.title')}
           </h1>
         <button
           onClick={() => {
@@ -337,7 +337,7 @@ export default function ResidentsPage() {
           }}
           className="w-full sm:w-auto bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-500 dark:via-indigo-500 dark:to-purple-500 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 dark:hover:from-blue-600 dark:hover:via-indigo-600 dark:hover:to-purple-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
         >
-          + Add Resident
+          + {t('pages.residents.addResident')}
         </button>
       </div>
 
@@ -353,12 +353,12 @@ export default function ResidentsPage() {
         <div className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 dark:from-gray-800 dark:via-blue-900/20 dark:to-indigo-900/20 p-4 sm:p-6 rounded-2xl shadow-xl border-2 border-blue-100 dark:border-blue-900/30 mb-6 animate-slideInUp">
           <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent flex items-center gap-2">
             <span className="text-xl">👤</span>
-            {editing ? 'Edit Resident' : 'Add New Resident'}
+            {editing ? t('pages.residents.editResident') : t('pages.residents.addResident')}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Name</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('labels.name')}</label>
                 <input
                   type="text"
                   required
@@ -368,7 +368,7 @@ export default function ResidentsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('labels.email')}</label>
                 <input
                   type="email"
                   required
@@ -380,7 +380,7 @@ export default function ResidentsPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Phone</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('labels.phone')}</label>
                 <input
                   type="tel"
                   required
@@ -390,7 +390,7 @@ export default function ResidentsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Room</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.residents.room')}</label>
                 <select
                   required
                   value={formData.roomId}
@@ -404,7 +404,7 @@ export default function ResidentsPage() {
                   }}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Select Room</option>
+                  <option value="">{t('forms.placeholders.select')}</option>
                   {rooms.map((r) => (
                     <option key={r._id} value={r._id}>
                       {r.roomNumber} {r.buildingName && `(${r.buildingName})`}
@@ -415,7 +415,7 @@ export default function ResidentsPage() {
               {formData.roomId && (
                 <div>
                   <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                    Bed <span className="text-red-500">*</span>
+                    {t('pages.residents.bed')} <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
@@ -423,22 +423,19 @@ export default function ResidentsPage() {
                     onChange={(e) => setFormData({ ...formData, bedId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select Bed (Required)</option>
+                    <option value="">{t('forms.placeholders.select')}</option>
                     {availableBeds.map((b) => (
                       <option key={b._id} value={b._id}>
-                        Bed {b.bedNumber} (₹{beds.find((bed) => bed._id === b._id)?.rent || 0}/month)
+                        {t('pages.residents.bed')} {b.bedNumber} (₹{beds.find((bed) => bed._id === b._id)?.rent || 0}/month)
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Bed assignment is required. Rent is calculated from bed rent only.
-                  </p>
                 </div>
               )}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Check-in Date</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.residents.checkInDate')}</label>
                 <input
                   type="date"
                   required
@@ -448,31 +445,28 @@ export default function ResidentsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Expected Vacate Date</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.residents.expectedVacateDate')}</label>
                 <input
                   type="date"
                   value={formData.expectedVacateDate}
                   onChange={(e) => setFormData({ ...formData, expectedVacateDate: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Optional: Expected date when resident will vacate
-                </p>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Tags</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('sidebar.tags')}</label>
               <TagSelector
                 tags={formData.tags}
                 onChange={(tags) => setFormData({ ...formData, tags })}
-                placeholder="Add tags (e.g., VIP, Late payer, Issue-prone)"
+                placeholder={t('forms.placeholders.search')}
               />
             </div>
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <h3 className="font-medium mb-3 text-gray-900 dark:text-white">Emergency Contact</h3>
+              <h3 className="font-medium mb-3 text-gray-900 dark:text-white">{t('pages.residents.emergencyContact')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Name</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.residents.contactName')}</label>
                   <input
                     type="text"
                     value={formData.emergencyContact.name}
@@ -489,7 +483,7 @@ export default function ResidentsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Phone</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.residents.contactPhone')}</label>
                   <input
                     type="tel"
                     value={formData.emergencyContact.phone}
@@ -506,7 +500,7 @@ export default function ResidentsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Relation</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.residents.relation')}</label>
                   <input
                     type="text"
                     value={formData.emergencyContact.relation}
@@ -525,24 +519,21 @@ export default function ResidentsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Notes</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.residents.notes')}</label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                placeholder="Add any additional notes about this resident..."
+                placeholder={t('forms.placeholders.search')}
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Internal notes visible only to staff members
-              </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <button
                 type="submit"
                 className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
               >
-                {editing ? 'Update' : 'Create'}
+                {editing ? t('buttons.update') : t('buttons.create')}
               </button>
               <button
                 type="button"
@@ -552,7 +543,7 @@ export default function ResidentsPage() {
                 }}
                 className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               >
-                Cancel
+                {t('buttons.cancel')}
               </button>
             </div>
           </form>
@@ -562,11 +553,11 @@ export default function ResidentsPage() {
       {showVacateForm && vacatingResident && (
         <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow mb-6">
           <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-            Vacate Resident: {vacatingResident.name}
+            {t('pages.residents.vacateResident')}: {vacatingResident.name}
           </h2>
           <form onSubmit={handleVacateSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Move-out Date *</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.residents.moveOutDate')} *</label>
               <input
                 type="date"
                 required
@@ -613,13 +604,13 @@ export default function ResidentsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Settlement Notes</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.residents.settlement')} {t('pages.residents.notes')}</label>
               <textarea
                 value={vacateFormData.settlementNotes}
                 onChange={(e) => setVacateFormData({ ...vacateFormData, settlementNotes: e.target.value })}
                 rows={2}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                placeholder="Additional notes about the settlement"
+                placeholder={t('forms.placeholders.search')}
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
@@ -627,7 +618,7 @@ export default function ResidentsPage() {
                 type="submit"
                 className="flex-1 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600 transition-colors"
               >
-                Vacate Resident
+                {t('pages.residents.vacateResident')}
               </button>
               <button
                 type="button"
@@ -637,7 +628,7 @@ export default function ResidentsPage() {
                 }}
                 className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               >
-                Cancel
+                {t('buttons.cancel')}
               </button>
             </div>
           </form>
@@ -650,22 +641,22 @@ export default function ResidentsPage() {
             <thead className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-purple-900/30">
               <tr>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Name
+                  {t('labels.name')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Contact
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Room
+                  {t('pages.residents.room')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Check-in
+                  {t('pages.residents.checkInDate')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Status
+                  {t('labels.status')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Actions
+                  {t('labels.actions')}
                 </th>
               </tr>
             </thead>
@@ -673,7 +664,7 @@ export default function ResidentsPage() {
               {residents.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-lg font-bold">
-                    No residents found
+                    {t('pages.residents.noResidents')}
                   </td>
                 </tr>
               ) : (
@@ -722,10 +713,10 @@ export default function ResidentsPage() {
                             : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                         }`}
                       >
-                        {resident.status === 'ACTIVE' ? '✓ Active' :
-                         resident.status === 'NOTICE_GIVEN' ? '⚠️ Notice Given' :
-                         resident.status === 'VACATED' ? '🚪 Vacated' :
-                         resident.status === 'SUSPENDED' ? '🚫 Suspended' :
+                        {resident.status === 'ACTIVE' ? `✓ ${t('pages.residents.active')}` :
+                         resident.status === 'NOTICE_GIVEN' ? `⚠️ ${t('pages.residents.vacated')}` :
+                         resident.status === 'VACATED' ? `🚪 ${t('pages.residents.vacated')}` :
+                         resident.status === 'SUSPENDED' ? `🚫 ${t('pages.residents.vacated')}` :
                          resident.status}
                       </span>
                       {resident.status === 'VACATED' && resident.moveOutDate && (
@@ -746,7 +737,7 @@ export default function ResidentsPage() {
                             onClick={() => handleEdit(resident)}
                             className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                           >
-                            Edit
+                            {t('buttons.edit')}
                           </button>
                         )}
                         {(resident.status === 'ACTIVE' || resident.status === 'NOTICE_GIVEN') && (
@@ -754,7 +745,7 @@ export default function ResidentsPage() {
                             onClick={() => handleVacate(resident)}
                             className="px-3 py-1.5 bg-gradient-to-r from-orange-600 to-amber-600 dark:from-orange-500 dark:to-amber-500 text-white rounded-lg hover:from-orange-700 hover:to-amber-700 dark:hover:from-orange-600 dark:hover:to-amber-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                           >
-                            Vacate
+                            {t('pages.residents.vacateResident')}
                           </button>
                         )}
                         {resident.status === 'VACATED' && !resident.settlementCompleted && (
@@ -762,7 +753,7 @@ export default function ResidentsPage() {
                             onClick={() => handleCompleteSettlement(resident._id)}
                             className="px-3 py-1.5 bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-500 dark:to-emerald-500 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 dark:hover:from-green-600 dark:hover:to-emerald-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                           >
-                            Complete Settlement
+                            {t('pages.residents.settlement')}
                           </button>
                         )}
                         {resident.status !== 'VACATED' && (
@@ -770,7 +761,7 @@ export default function ResidentsPage() {
                             onClick={() => handleDelete(resident._id)}
                             className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-500 dark:to-rose-500 text-white rounded-lg hover:from-red-700 hover:to-rose-700 dark:hover:from-red-600 dark:hover:to-rose-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                           >
-                            Delete
+                            {t('buttons.delete')}
                           </button>
                         )}
                       </div>

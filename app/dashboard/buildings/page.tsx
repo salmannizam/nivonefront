@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
+import { useI18n } from '@/lib/i18n-context';
 import { showSuccess, showError, confirmAction, logError } from '@/lib/utils';
 
 interface Building {
@@ -16,6 +17,7 @@ interface Building {
 }
 
 export default function BuildingsPage() {
+  const { t } = useI18n();
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -51,32 +53,32 @@ export default function BuildingsPage() {
     
     // Client-side validation
     if (!formData.name || formData.name.trim() === '') {
-      showError(null, 'Building name is required');
+      showError(null, t('pages.buildings.nameRequired'));
       return;
     }
     if (!formData.address || formData.address.trim() === '') {
-      showError(null, 'Building address is required');
+      showError(null, t('pages.buildings.addressRequired'));
       return;
     }
     if (formData.floors < 1) {
-      showError(null, 'Number of floors must be at least 1');
+      showError(null, t('pages.buildings.floorsMin'));
       return;
     }
 
     try {
       if (editing) {
         await api.patch(`/buildings/${editing._id}`, formData);
-        showSuccess('Building updated successfully');
+        showSuccess(t('pages.buildings.updatedSuccess'));
       } else {
         await api.post('/buildings', formData);
-        showSuccess('Building created successfully');
+        showSuccess(t('pages.buildings.createdSuccess'));
       }
       setShowForm(false);
       setEditing(null);
       setFormData({ name: '', address: '', floors: 1 });
       loadBuildings();
     } catch (error: any) {
-      showError(error, 'Unable to save building. Please check all fields and try again.');
+      showError(error, t('messages.saveError'));
     }
   };
 
@@ -93,19 +95,19 @@ export default function BuildingsPage() {
   const handleDelete = async (id: string) => {
     const building = buildings.find((b) => b._id === id);
     const confirmed = await confirmAction(
-      'Delete this building?',
+      t('pages.buildings.deleteConfirm'),
       building
-        ? `This will permanently delete "${building.name}" and all associated rooms and beds. This action cannot be undone.`
-        : 'This action cannot be undone.'
+        ? t('pages.buildings.deleteWarning', { name: building.name })
+        : t('messages.actionCannotUndo')
     );
     if (!confirmed) return;
 
     try {
       await api.delete(`/buildings/${id}`);
-      showSuccess('Building deleted successfully');
+      showSuccess(t('pages.buildings.deletedSuccess'));
       loadBuildings();
     } catch (error: any) {
-      showError(error, 'Unable to delete building. It may have associated rooms or beds.');
+      showError(error, t('messages.deleteError'));
     }
   };
 
@@ -114,7 +116,7 @@ export default function BuildingsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">Loading buildings...</div>
+          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('labels.loading')}</div>
         </div>
       </div>
     );
@@ -123,8 +125,8 @@ export default function BuildingsPage() {
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: 'Search',
-      placeholder: 'Search by name or address',
+      label: t('buttons.search'),
+      placeholder: t('forms.placeholders.searchByNameOrAddress'),
       advanced: false,
     },
   };
@@ -134,7 +136,7 @@ export default function BuildingsPage() {
       <div className="animate-fadeIn">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 animate-slideInLeft">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent">
-            Buildings
+            {t('pages.buildings.title')}
           </h1>
           <button
             onClick={() => {
@@ -144,7 +146,7 @@ export default function BuildingsPage() {
             }}
             className="w-full sm:w-auto bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-500 dark:via-indigo-500 dark:to-purple-500 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 dark:hover:from-blue-600 dark:hover:via-indigo-600 dark:hover:to-purple-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
           >
-            + Add Building
+            + {t('pages.buildings.addBuilding')}
           </button>
         </div>
 
@@ -160,41 +162,38 @@ export default function BuildingsPage() {
         <div className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 dark:from-gray-800 dark:via-blue-900/20 dark:to-indigo-900/20 p-4 sm:p-6 rounded-2xl shadow-xl border-2 border-blue-100 dark:border-blue-900/30 mb-6 animate-slideInUp">
           <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent flex items-center gap-2">
             <span className="text-xl">🏢</span>
-            {editing ? 'Edit Building' : 'Add New Building'}
+            {editing ? t('pages.buildings.editBuilding') : t('pages.buildings.addBuilding')}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div className="transform transition-all hover:scale-105">
               <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">
-                Building Name <span className="text-red-500">*</span>
+                {t('pages.buildings.name')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value.trim() })}
-                placeholder="e.g., Main Building, Block A"
+                placeholder={t('forms.placeholders.enterName')}
                 className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-md hover:shadow-lg"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Enter a unique name to identify this building
-              </p>
             </div>
             <div className="transform transition-all hover:scale-105">
               <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">
-                Address <span className="text-red-500">*</span>
+                {t('pages.buildings.address')} <span className="text-red-500">*</span>
               </label>
               <textarea
                 required
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Enter the complete address of the building"
+                placeholder={t('forms.placeholders.enterAddress')}
                 className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-purple-500/50 focus:border-purple-500 transition-all shadow-md hover:shadow-lg"
                 rows={3}
               />
             </div>
             <div className="transform transition-all hover:scale-105">
               <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">
-                Number of Floors <span className="text-red-500">*</span>
+                {t('pages.buildings.floors')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -205,19 +204,16 @@ export default function BuildingsPage() {
                   const value = e.target.value;
                   setFormData({ ...formData, floors: value === '' ? 1 : parseInt(value) || 1 });
                 }}
-                placeholder="Enter number of floors"
+                placeholder={t('pages.buildings.floors')}
                 className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-md hover:shadow-lg"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Total number of floors in this building
-              </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button
                 type="submit"
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-500 dark:via-indigo-500 dark:to-purple-500 text-white rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 dark:hover:from-blue-600 dark:hover:via-indigo-600 dark:hover:to-purple-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
               >
-                {editing ? '✨ Update' : '✨ Create'}
+                {editing ? `✨ ${t('buttons.update')}` : `✨ ${t('buttons.create')}`}
               </button>
               <button
                 type="button"
@@ -227,7 +223,7 @@ export default function BuildingsPage() {
                 }}
                 className="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-bold transform hover:scale-105"
               >
-                Cancel
+                {t('buttons.cancel')}
               </button>
             </div>
           </form>
@@ -240,19 +236,19 @@ export default function BuildingsPage() {
           <thead className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30">
             <tr>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Name
+                {t('labels.name')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Address
+                {t('pages.buildings.address')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Floors
+                {t('pages.buildings.floors')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Total Rooms
+                {t('pages.buildings.totalRooms')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Actions
+                {t('labels.actions')}
               </th>
             </tr>
           </thead>
@@ -260,7 +256,7 @@ export default function BuildingsPage() {
             {buildings.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-lg font-bold">
-                  No buildings found
+                  {t('pages.buildings.noBuildings')}
                 </td>
               </tr>
             ) : (
@@ -288,13 +284,13 @@ export default function BuildingsPage() {
                         onClick={() => handleEdit(building)}
                         className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                       >
-                        Edit
+                        {t('buttons.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(building._id)}
                         className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-500 dark:to-rose-500 text-white rounded-lg hover:from-red-700 hover:to-rose-700 dark:hover:from-red-600 dark:hover:to-rose-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                       >
-                        Delete
+                        {t('buttons.delete')}
                       </button>
                     </div>
                   </td>

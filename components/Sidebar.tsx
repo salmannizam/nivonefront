@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useFeatures } from '@/lib/feature-context';
+import { useI18n } from '@/lib/i18n-context';
 import { useState, useEffect, useMemo } from 'react';
 
 type SidebarItem = {
-  name: string;
+  translationKey: string;
   href?: string;
   icon: string;
   feature?: string | null;
@@ -17,66 +18,66 @@ type SidebarItem = {
 
 const sidebarConfig: SidebarItem[] = [
   {
-    name: 'Dashboard',
+    translationKey: 'dashboard',
     href: '/dashboard',
     icon: '📊',
     feature: null,
   },
   {
-    name: 'Property',
+    translationKey: 'property',
     icon: '🏢',
     children: [
-      { name: 'Buildings', href: '/dashboard/buildings', icon: '🏢', feature: 'buildings' },
-      { name: 'Rooms', href: '/dashboard/rooms', icon: '🏠', feature: 'rooms' },
-      { name: 'Beds', href: '/dashboard/beds', icon: '🛏️', feature: 'beds' },
+      { translationKey: 'buildings', href: '/dashboard/buildings', icon: '🏢', feature: 'buildings' },
+      { translationKey: 'rooms', href: '/dashboard/rooms', icon: '🏠', feature: 'rooms' },
+      { translationKey: 'beds', href: '/dashboard/beds', icon: '🛏️', feature: 'beds' },
     ],
   },
   {
-    name: 'Residents',
+    translationKey: 'residents',
     icon: '👥',
     children: [
-      { name: 'Residents', href: '/dashboard/residents', icon: '👥', feature: 'residents' },
-      { name: 'Rent Payments', href: '/dashboard/payments?section=rent', icon: '💰', feature: 'rentPayments' },
-      { name: 'Extra Payments', href: '/dashboard/payments?section=extra', icon: '💳', feature: 'extraPayments' },
-      { name: 'Security Deposits', href: '/dashboard/payments?section=deposits', icon: '🔒', feature: 'securityDeposits' },
+      { translationKey: 'residents', href: '/dashboard/residents', icon: '👥', feature: 'residents' },
+      { translationKey: 'rentPayments', href: '/dashboard/payments?section=rent', icon: '💰', feature: 'rentPayments' },
+      { translationKey: 'extraPayments', href: '/dashboard/payments?section=extra', icon: '💳', feature: 'extraPayments' },
+      { translationKey: 'securityDeposits', href: '/dashboard/payments?section=deposits', icon: '🔒', feature: 'securityDeposits' },
     ],
   },
   {
-    name: 'Operations',
+    translationKey: 'operations',
     icon: '⚙️',
     children: [
-      { name: 'Complaints', href: '/dashboard/complaints', icon: '📝', feature: 'complaints' },
-      { name: 'Visitors', href: '/dashboard/visitors', icon: '🚶', feature: 'visitors' },
-      { name: 'Gate Passes', href: '/dashboard/gate-passes', icon: '🚪', feature: 'gatePasses' },
-      { name: 'Notices', href: '/dashboard/notices', icon: '📢', feature: 'notices' },
+      { translationKey: 'complaints', href: '/dashboard/complaints', icon: '📝', feature: 'complaints' },
+      { translationKey: 'visitors', href: '/dashboard/visitors', icon: '🚶', feature: 'visitors' },
+      { translationKey: 'gatePasses', href: '/dashboard/gate-passes', icon: '🚪', feature: 'gatePasses' },
+      { translationKey: 'notices', href: '/dashboard/notices', icon: '📢', feature: 'notices' },
     ],
   },
   {
-    name: 'Management',
+    translationKey: 'management',
     icon: '👨‍💼',
     children: [
-      { name: 'Staff', href: '/dashboard/staff', icon: '👨‍💼', feature: 'staff' },
-      { name: 'Assets', href: '/dashboard/assets', icon: '🔧', feature: 'assets' },
+      { translationKey: 'staff', href: '/dashboard/staff', icon: '👨‍💼', feature: 'staff' },
+      { translationKey: 'assets', href: '/dashboard/assets', icon: '🔧', feature: 'assets' },
     ],
   },
   {
-    name: 'Analytics',
+    translationKey: 'analytics',
     icon: '📊',
     children: [
-      { name: 'Reports', href: '/dashboard/reports', icon: '📈', feature: 'reports' },
-      { name: 'Insights', href: '/dashboard/insights', icon: '📊', feature: 'insights' },
-      { name: 'Activity', href: '/dashboard/activity', icon: '📜', feature: 'activityLog' },
+      { translationKey: 'reports', href: '/dashboard/reports', icon: '📈', feature: 'reports' },
+      { translationKey: 'insights', href: '/dashboard/insights', icon: '📊', feature: 'insights' },
+      { translationKey: 'activity', href: '/dashboard/activity', icon: '📜', feature: 'activityLog' },
     ],
   },
   {
-    name: 'Administration',
+    translationKey: 'administration',
     icon: '⚙️',
     children: [
-      { name: 'Users', href: '/dashboard/users', icon: '👤', roles: ['OWNER', 'MANAGER'], feature: 'userManagement' },
-      { name: 'Tags', href: '/dashboard/tags', icon: '🏷️', roles: ['OWNER', 'MANAGER'], feature: 'customTags' },
-      { name: 'Personal Notes', href: '/dashboard/personal-notes', icon: '📝', feature: 'personalNotes' },
-      { name: 'Audit Logs', href: '/dashboard/audit-logs', icon: '📋', roles: ['OWNER'], feature: 'auditLog' },
-      { name: 'Settings', href: '/dashboard/settings', icon: '⚙️', feature: 'settings' },
+      { translationKey: 'users', href: '/dashboard/users', icon: '👤', roles: ['OWNER', 'MANAGER'], feature: 'userManagement' },
+      { translationKey: 'tags', href: '/dashboard/tags', icon: '🏷️', roles: ['OWNER', 'MANAGER'], feature: 'customTags' },
+      { translationKey: 'personalNotes', href: '/dashboard/personal-notes', icon: '📝', feature: 'personalNotes' },
+      { translationKey: 'auditLogs', href: '/dashboard/audit-logs', icon: '📋', roles: ['OWNER'], feature: 'auditLog' },
+      { translationKey: 'settings', href: '/dashboard/settings', icon: '⚙️', feature: 'settings' },
     ],
   },
 ];
@@ -86,6 +87,7 @@ export default function Sidebar() {
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const { isFeatureEnabled } = useFeatures();
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
 
@@ -152,7 +154,7 @@ export default function Sidebar() {
     const newOpenSections = new Set<string>();
     visibleItems.forEach((item) => {
       if (item.children && hasActiveChild(item)) {
-        newOpenSections.add(item.name);
+        newOpenSections.add(item.translationKey);
       }
     });
     // Update open sections if there are active children
@@ -168,32 +170,32 @@ export default function Sidebar() {
   }, [pathname, searchParams.toString(), visibleItems.length]);
 
   // Toggle section
-  const toggleSection = (sectionName: string) => {
+  const toggleSection = (sectionKey: string) => {
     setOpenSections((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(sectionName)) {
+      if (newSet.has(sectionKey)) {
         // Don't close if it has an active child
-        const sectionItem = visibleItems.find((item) => item.name === sectionName);
+        const sectionItem = visibleItems.find((item) => item.translationKey === sectionKey);
         if (sectionItem && !hasActiveChild(sectionItem)) {
-          newSet.delete(sectionName);
+          newSet.delete(sectionKey);
         }
       } else {
         // Accordion behavior: close other sections (except those with active children)
         const sectionsToKeep = new Set<string>();
         visibleItems.forEach((item) => {
-          if (item.children && hasActiveChild(item) && item.name !== sectionName) {
-            sectionsToKeep.add(item.name);
+          if (item.children && hasActiveChild(item) && item.translationKey !== sectionKey) {
+            sectionsToKeep.add(item.translationKey);
           }
         });
         newSet.clear();
-        sectionsToKeep.forEach((name) => newSet.add(name));
-        newSet.add(sectionName);
+        sectionsToKeep.forEach((key) => newSet.add(key));
+        newSet.add(sectionKey);
       }
       return newSet;
     });
   };
 
-  const isSectionOpen = (sectionName: string) => openSections.has(sectionName);
+  const isSectionOpen = (sectionKey: string) => openSections.has(sectionKey);
   const isSectionActive = (item: SidebarItem) => hasActiveChild(item);
 
   return (
@@ -254,7 +256,7 @@ export default function Sidebar() {
               const isActive = isRouteActive(item.href);
               return (
                 <Link
-                  key={item.name}
+                  key={item.translationKey}
                   href={item.href!}
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center px-3 sm:px-4 py-3 rounded-xl mb-2 transition-all duration-200 ${
@@ -267,7 +269,7 @@ export default function Sidebar() {
                     {item.icon}
                   </span>
                   <span className={`text-sm sm:text-base font-medium ${isActive ? 'font-semibold text-white' : ''}`}>
-                    {item.name}
+                    {t(`sidebar.${item.translationKey}`)}
                   </span>
                   {isActive && (
                     <div className="ml-auto w-2 h-2 rounded-full bg-white animate-pulse" />
@@ -277,14 +279,14 @@ export default function Sidebar() {
             }
 
             // Parent item with children
-            const sectionOpen = isSectionOpen(item.name);
+            const sectionOpen = isSectionOpen(item.translationKey);
             const sectionActive = isSectionActive(item);
 
             return (
-              <div key={item.name} className="mb-2">
+              <div key={item.translationKey} className="mb-2">
                 {/* Parent Header - Clickable to toggle */}
                 <button
-                  onClick={() => toggleSection(item.name)}
+                  onClick={() => toggleSection(item.translationKey)}
                   className={`w-full flex items-center justify-between px-3 sm:px-4 py-3 rounded-xl transition-all duration-200 ${
                     sectionActive
                       ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
@@ -296,7 +298,7 @@ export default function Sidebar() {
                       {item.icon}
                     </span>
                     <span className={`text-sm sm:text-base font-semibold truncate ${sectionActive ? 'text-blue-700 dark:text-blue-300' : ''}`}>
-                      {item.name}
+                      {t(`sidebar.${item.translationKey}`)}
                     </span>
                   </div>
                   {/* Chevron Icon */}
@@ -319,7 +321,7 @@ export default function Sidebar() {
                       const isChildActive = isRouteActive(child.href);
                       return (
                         <Link
-                          key={child.name}
+                          key={child.translationKey}
                           href={child.href!}
                           onClick={() => setIsOpen(false)}
                           className={`flex items-center px-3 sm:px-4 py-2.5 ml-6 rounded-lg transition-all duration-200 ${
@@ -330,7 +332,7 @@ export default function Sidebar() {
                         >
                           <span className="mr-3 text-base flex-shrink-0">{child.icon}</span>
                           <span className={`text-sm truncate ${isChildActive ? 'font-semibold' : ''}`}>
-                            {child.name}
+                            {t(`sidebar.${child.translationKey}`)}
                           </span>
                         </Link>
                       );

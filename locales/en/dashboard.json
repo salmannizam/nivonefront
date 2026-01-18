@@ -1,0 +1,13 @@
+{
+  "title": "Dashboard",
+  "overview": "Overview",
+  "statistics": "Statistics",
+  "recentActivity": "Recent Activity",
+  "quickActions": "Quick Actions",
+  "emptyState": {
+    "noData": "No data available",
+    "noResidents": "No residents found",
+    "noRooms": "No rooms found",
+    "noBuildings": "No buildings found"
+  }
+}
