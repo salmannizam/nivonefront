@@ -17,8 +17,10 @@ interface Plan {
     rooms: number;
     residents: number;
     staff: number;
+    buildings?: number;
   };
   isActive: boolean;
+  isDefault?: boolean;
 }
 
 interface Feature {
@@ -55,7 +57,14 @@ export default function EditPlanPage() {
     price: 0,
     billingCycle: 'monthly' as 'monthly' | 'yearly',
     features: [] as string[],
+    limits: {
+      rooms: -1,
+      residents: -1,
+      staff: -1,
+      buildings: -1,
+    },
     isActive: true,
+    isDefault: false,
   });
 
   useEffect(() => {
@@ -80,7 +89,14 @@ export default function EditPlanPage() {
         price: planRes.data.price,
         billingCycle: planRes.data.billingCycle,
         features: planRes.data.features || [],
+        limits: {
+          rooms: planRes.data.limits?.rooms ?? -1,
+          residents: planRes.data.limits?.residents ?? -1,
+          staff: planRes.data.limits?.staff ?? -1,
+          buildings: planRes.data.limits?.buildings ?? -1,
+        },
         isActive: planRes.data.isActive,
+        isDefault: planRes.data.isDefault || false,
       });
     } catch (error: any) {
       showError(error, 'Failed to load plan data');
@@ -244,6 +260,96 @@ export default function EditPlanPage() {
                 <span className="ml-3 text-sm font-bold text-gray-700 dark:text-gray-300">Active</span>
               </label>
             </div>
+          </div>
+        </div>
+
+        {/* Limits Section */}
+        <div className="bg-gradient-to-br from-white via-green-50/30 to-emerald-50/30 dark:from-gray-800 dark:via-green-900/20 dark:to-emerald-900/20 p-4 sm:p-6 rounded-2xl shadow-xl border-2 border-green-100 dark:border-green-900/30 animate-slideInUp">
+          <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent flex items-center gap-2">
+            <span className="text-xl">📊</span>
+            Resource Limits (-1 means unlimited)
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="transform transition-all hover:scale-105">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                Rooms Limit
+              </label>
+              <input
+                type="number"
+                min="-1"
+                value={formData.limits.rooms}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  limits: { ...formData.limits, rooms: parseInt(e.target.value) || -1 }
+                })}
+                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-md hover:shadow-lg"
+                placeholder="-1 for unlimited"
+              />
+            </div>
+            <div className="transform transition-all hover:scale-105">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                Residents Limit
+              </label>
+              <input
+                type="number"
+                min="-1"
+                value={formData.limits.residents}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  limits: { ...formData.limits, residents: parseInt(e.target.value) || -1 }
+                })}
+                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-green-500/50 focus:border-green-500 transition-all shadow-md hover:shadow-lg"
+                placeholder="-1 for unlimited"
+              />
+            </div>
+            <div className="transform transition-all hover:scale-105">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                Staff Limit
+              </label>
+              <input
+                type="number"
+                min="-1"
+                value={formData.limits.staff}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  limits: { ...formData.limits, staff: parseInt(e.target.value) || -1 }
+                })}
+                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-purple-500/50 focus:border-purple-500 transition-all shadow-md hover:shadow-lg"
+                placeholder="-1 for unlimited"
+              />
+            </div>
+            <div className="transform transition-all hover:scale-105">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                Buildings Limit
+              </label>
+              <input
+                type="number"
+                min="-1"
+                value={formData.limits.buildings || -1}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  limits: { ...formData.limits, buildings: parseInt(e.target.value) || -1 }
+                })}
+                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-md hover:shadow-lg"
+                placeholder="-1 for unlimited"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Default Plan Checkbox */}
+        <div className="bg-gradient-to-br from-white via-yellow-50/30 to-amber-50/30 dark:from-gray-800 dark:via-yellow-900/20 dark:to-amber-900/20 p-4 sm:p-6 rounded-2xl shadow-xl border-2 border-yellow-100 dark:border-yellow-900/30 animate-slideInUp">
+          <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-xl border-2 border-yellow-200 dark:border-yellow-800">
+            <input
+              type="checkbox"
+              id="isDefault"
+              checked={formData.isDefault}
+              onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
+              className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500 focus:ring-2"
+            />
+            <label htmlFor="isDefault" className="text-sm font-bold text-gray-900 dark:text-white cursor-pointer">
+              Set as Default Plan (This plan will be assigned to new tenants during signup)
+            </label>
           </div>
         </div>
 

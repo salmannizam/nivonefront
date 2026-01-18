@@ -17,8 +17,10 @@ interface Plan {
     rooms: number;
     residents: number;
     staff: number;
+    buildings?: number;
   };
   isActive: boolean;
+  isDefault?: boolean;
   tenantCount?: number;
   createdAt: string;
 }
@@ -54,7 +56,14 @@ export default function PlansPage() {
     price: 0,
     billingCycle: 'monthly' as 'monthly' | 'yearly',
     features: [] as string[],
+    limits: {
+      rooms: -1,
+      residents: -1,
+      staff: -1,
+      buildings: -1,
+    },
     isActive: true,
+    isDefault: false,
   });
 
   useEffect(() => {
@@ -92,7 +101,14 @@ export default function PlansPage() {
         price: 0,
         billingCycle: 'monthly',
         features: [],
+        limits: {
+          rooms: -1,
+          residents: -1,
+          staff: -1,
+          buildings: -1,
+        },
         isActive: true,
+        isDefault: false,
       });
       loadData();
     } catch (error: any) {
@@ -118,6 +134,16 @@ export default function PlansPage() {
       loadData();
     } catch (error: any) {
       showError(error, 'Failed to mark payment as paid');
+    }
+  };
+
+  const handleSetDefault = async (planId: string) => {
+    try {
+      await api.post(`/admin/plans/${planId}/set-default`);
+      showSuccess('Plan set as default successfully!');
+      loadData();
+    } catch (error: any) {
+      showError(error, 'Failed to set default plan');
     }
   };
 
@@ -258,6 +284,108 @@ export default function PlansPage() {
                 </select>
               </div>
             </div>
+
+            {/* Limits Section */}
+            <div className="md:col-span-2">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <span className="text-xl">📊</span>
+                Resource Limits (-1 means unlimited)
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="transform transition-all hover:scale-105">
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                    Rooms Limit
+                  </label>
+                  <input
+                    type="number"
+                    min="-1"
+                    value={formData.limits.rooms}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      limits: { ...formData.limits, rooms: parseInt(e.target.value) || -1 }
+                    })}
+                    className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-md hover:shadow-lg"
+                    placeholder="-1 for unlimited"
+                  />
+                </div>
+                <div className="transform transition-all hover:scale-105">
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                    Residents Limit
+                  </label>
+                  <input
+                    type="number"
+                    min="-1"
+                    value={formData.limits.residents}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      limits: { ...formData.limits, residents: parseInt(e.target.value) || -1 }
+                    })}
+                    className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-green-500/50 focus:border-green-500 transition-all shadow-md hover:shadow-lg"
+                    placeholder="-1 for unlimited"
+                  />
+                </div>
+                <div className="transform transition-all hover:scale-105">
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                    Staff Limit
+                  </label>
+                  <input
+                    type="number"
+                    min="-1"
+                    value={formData.limits.staff}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      limits: { ...formData.limits, staff: parseInt(e.target.value) || -1 }
+                    })}
+                    className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-purple-500/50 focus:border-purple-500 transition-all shadow-md hover:shadow-lg"
+                    placeholder="-1 for unlimited"
+                  />
+                </div>
+                <div className="transform transition-all hover:scale-105">
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                    Buildings Limit
+                  </label>
+                  <input
+                    type="number"
+                    min="-1"
+                    value={formData.limits.buildings || -1}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      limits: { ...formData.limits, buildings: parseInt(e.target.value) || -1 }
+                    })}
+                    className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-md hover:shadow-lg"
+                    placeholder="-1 for unlimited"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Default Plan Checkbox */}
+            <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-xl border-2 border-yellow-200 dark:border-yellow-800">
+              <input
+                type="checkbox"
+                id="isDefault"
+                checked={formData.isDefault}
+                onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
+                className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500 focus:ring-2"
+              />
+              <label htmlFor="isDefault" className="text-sm font-bold text-gray-900 dark:text-white cursor-pointer">
+                Set as Default Plan (This plan will be assigned to new tenants during signup)
+              </label>
+            </div>
+            
+            {/* Active Status Checkbox */}
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="isActive"
+                checked={formData.isActive}
+                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <label htmlFor="isActive" className="text-sm font-bold text-gray-700 dark:text-gray-300 cursor-pointer">
+                Active
+              </label>
+            </div>
             
             {/* Feature Selection */}
             {features.length > 0 && (
@@ -343,6 +471,9 @@ export default function PlansPage() {
                   Billing Cycle
                 </th>
                 <th className="px-4 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                  Limits
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Status
                 </th>
                 <th className="px-4 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -376,19 +507,41 @@ export default function PlansPage() {
                         ₹{plan.price.toLocaleString()}
                       </span>
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300 capitalize font-medium">
-                      {plan.billingCycle}
+                    <td className="px-4 sm:px-6 py-4">
+                      <div className="text-xs space-y-1">
+                        <div className="text-gray-700 dark:text-gray-300">
+                          <span className="font-semibold">Rooms:</span> {plan.limits.rooms === -1 ? '∞' : plan.limits.rooms}
+                        </div>
+                        <div className="text-gray-700 dark:text-gray-300">
+                          <span className="font-semibold">Residents:</span> {plan.limits.residents === -1 ? '∞' : plan.limits.residents}
+                        </div>
+                        <div className="text-gray-700 dark:text-gray-300">
+                          <span className="font-semibold">Staff:</span> {plan.limits.staff === -1 ? '∞' : plan.limits.staff}
+                        </div>
+                        {plan.limits.buildings !== undefined && (
+                          <div className="text-gray-700 dark:text-gray-300">
+                            <span className="font-semibold">Buildings:</span> {plan.limits.buildings === -1 ? '∞' : plan.limits.buildings}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold ${
-                          plan.isActive
-                            ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-md animate-pulse-slow'
-                            : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
-                        }`}
-                      >
-                        {plan.isActive ? '✓ Active' : 'Inactive'}
-                      </span>
+                      <div className="space-y-1">
+                        <span
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold block ${
+                            plan.isActive
+                              ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-md animate-pulse-slow'
+                              : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                          }`}
+                        >
+                          {plan.isActive ? '✓ Active' : 'Inactive'}
+                        </span>
+                        {plan.isDefault && (
+                          <span className="px-3 py-1.5 rounded-full text-xs font-bold block bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-md">
+                            ⭐ Default
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                       <span className="font-bold text-lg text-gray-900 dark:text-white">
@@ -396,19 +549,29 @@ export default function PlansPage() {
                       </span>
                     </td>
                     <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => window.location.href = `/admin/plans/${plan._id}/edit`}
-                          className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(plan._id)}
-                          className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-500 dark:to-rose-500 text-white rounded-lg hover:from-red-700 hover:to-rose-700 dark:hover:from-red-600 dark:hover:to-rose-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
-                        >
-                          Delete
-                        </button>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => window.location.href = `/admin/plans/${plan._id}/edit`}
+                            className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105 text-xs"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(plan._id)}
+                            className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-500 dark:to-rose-500 text-white rounded-lg hover:from-red-700 hover:to-rose-700 dark:hover:from-red-600 dark:hover:to-rose-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105 text-xs"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                        {!plan.isDefault && (
+                          <button
+                            onClick={() => handleSetDefault(plan._id)}
+                            className="px-3 py-1.5 bg-gradient-to-r from-yellow-600 to-amber-600 dark:from-yellow-500 dark:to-amber-500 text-white rounded-lg hover:from-yellow-700 hover:to-amber-700 dark:hover:from-yellow-600 dark:hover:to-amber-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105 text-xs"
+                          >
+                            ⭐ Set Default
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
