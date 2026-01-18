@@ -34,13 +34,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    // Get tenant slug from subdomain or query parameter
+    // Get tenant slug from subdomain or query parameter (optional)
     const tenantSlug = getTenantSlug();
-    if (!tenantSlug) {
-      throw new Error('Tenant slug is required. Please access via your tenant subdomain or use ?tenant=slug query parameter.');
+    
+    const response = await authService.login({ email, password, tenantSlug: tenantSlug || undefined });
+    
+    // If API returns redirect info, redirect to tenant subdomain
+    if (response.redirect && response.tenantSlug) {
+      const hostname = window.location.hostname;
+      const protocol = window.location.protocol;
+      const port = window.location.port ? `:${window.location.port}` : '';
+      
+      // For localhost/IP, use query parameter
+      if (hostname === 'localhost' || hostname.includes('127.0.0.1') || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
+        window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(response.tenantSlug)}`;
+        return; // Don't set user, wait for redirect
+      } else {
+        // For production, redirect to subdomain
+        const parts = hostname.split('.');
+        if (parts.length >= 2) {
+          const rootDomain = parts.slice(-2).join('.');
+          window.location.href = `${protocol}//${response.tenantSlug}.${rootDomain}${port}/login`;
+          return; // Don't set user, wait for redirect
+        } else {
+          // Fallback to query parameter
+          window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(response.tenantSlug)}`;
+          return;
+        }
+      }
     }
     
-    const response = await authService.login({ email, password, tenantSlug });
+    // Normal login success - user should be present if not redirected
+    if (!response.user) {
+      throw new Error('Login failed. Please try again.');
+    }
     setUser(response.user);
   };
 
@@ -52,7 +79,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     
     const response = await authService.register({ ...data, tenantSlug });
-    setUser(response.user);
+    if (response.user) {
+      setUser(response.user);
+    } else {
+      throw new Error('Registration failed. Please try again.');
+    }
   };
 
   const logout = async () => {

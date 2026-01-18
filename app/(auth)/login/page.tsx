@@ -18,17 +18,14 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Tenant user login only - no Super Admin fallback
+      // Tenant user login - will auto-redirect if tenant slug is wrong
       await login(email, password);
+      // Only redirect to dashboard if login was successful (not redirected)
       router.push('/dashboard');
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Login failed';
-      // Provide clear error message for tenant-related issues
-      if (errorMessage.toLowerCase().includes('tenant')) {
-        setError('Invalid tenant. Please access via your tenant subdomain.');
-      } else {
-        setError(errorMessage);
-      }
+      const errorMessage = err.response?.data?.message || err.message || 'Login failed';
+      // Show error message from API
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

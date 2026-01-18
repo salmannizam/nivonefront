@@ -3,7 +3,7 @@ import api from './api';
 export interface LoginCredentials {
   email: string;
   password: string;
-  tenantSlug: string; // Required: tenant slug from subdomain or query parameter
+  tenantSlug?: string; // Optional: if not provided, API will detect from user's tenant and return for redirect
 }
 
 export interface SuperAdminLoginCredentials {
@@ -29,7 +29,10 @@ export interface User {
 }
 
 export interface AuthResponse {
-  user: User;
+  user?: User;
+  redirect?: boolean;
+  tenantSlug?: string;
+  message?: string;
 }
 
 // Helper function to extract tenant slug from subdomain or query parameter
@@ -70,18 +73,19 @@ export function getTenantSlug(): string | null {
 
 export const authService = {
   /**
-   * Tenant user login - requires tenant slug from subdomain or query parameter
+   * Tenant user login - tenant slug is optional
+   * If tenant slug is missing or wrong, API returns redirect info with tenant slug
    * Cookies are set automatically by backend (HTTP-only)
    */
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    // Ensure tenantSlug is included in request
+    // Tenant slug is optional - if not provided, API will detect from user's tenant
     const loginData = {
       email: credentials.email,
       password: credentials.password,
-      tenantSlug: credentials.tenantSlug,
+      tenantSlug: credentials.tenantSlug || undefined, // Optional
     };
     const response = await api.post<AuthResponse>('/auth/login', loginData);
-    // Tokens are in HTTP-only cookies, only return user data
+    // Tokens are in HTTP-only cookies, only return user data or redirect info
     return response.data;
   },
 
