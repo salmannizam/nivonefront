@@ -6,6 +6,12 @@ export interface LoginCredentials {
   tenantSlug: string; // Required: tenant slug from subdomain or query parameter
 }
 
+export interface SuperAdminLoginCredentials {
+  email: string;
+  password: string;
+  // No tenantSlug - Super Admin doesn't belong to a tenant
+}
+
 export interface RegisterData {
   email: string;
   password: string;
@@ -83,7 +89,7 @@ export const authService = {
    * Super Admin login - separate endpoint, no tenant context
    * Cookies are set automatically by backend (HTTP-only)
    */
-  async superAdminLogin(credentials: LoginCredentials): Promise<AuthResponse> {
+  async superAdminLogin(credentials: SuperAdminLoginCredentials): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>('/admin/auth/login', credentials);
     // Tokens are in HTTP-only cookies, only return user data
     return response.data;
