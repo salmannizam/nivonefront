@@ -13,9 +13,10 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
-
   // Redirect if already logged in as Super Admin
   useEffect(() => {
+    // Only check if user is already logged in as Super Admin
+    // getCurrentUser() in auth context will call /admin/auth/me (correct endpoint)
     if (user && user.role === 'SUPER_ADMIN') {
       router.replace('/admin');
     }
@@ -45,11 +46,18 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      // Super Admin login - cookies are set automatically by backend (HTTP-only)
-      await api.post('/admin/auth/login', { email, password });
+      // Super Admin login - use the authService method to ensure correct endpoint
+      const { authService } = await import('@/lib/auth');
+      const response = await authService.superAdminLogin({ email, password });
       
-      // Force a hard redirect to ensure auth context is refreshed
-      window.location.href = '/admin';
+      // Update auth context manually since we're bypassing the context login
+      if (response?.user) {
+        // Force a hard redirect to ensure auth context is refreshed
+        window.location.href = '/admin';
+      } else {
+        setError('Login failed. Please try again.');
+        setLoading(false);
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid credentials. Super Admin access only.');
       setLoading(false);

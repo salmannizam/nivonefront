@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Always try to get current user (cookies are HTTP-only, can't check from JS)
+    // getCurrentUser() automatically detects admin vs tenant routes
     authService.getCurrentUser()
       .then((userData) => {
         setUser(userData);
