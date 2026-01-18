@@ -6,7 +6,7 @@ import { authService, User, getTenantSlug } from './auth';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void | { redirect: boolean; tenantSlug: string }>;
   register: (data: { email: string; password: string; name: string }) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -39,29 +39,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     const response = await authService.login({ email, password, tenantSlug: tenantSlug || undefined });
     
-    // If API returns redirect info, redirect to tenant subdomain
+    // If API returns redirect info (correct credentials but wrong/missing tenant slug)
+    // This should be handled by the caller, not here, to avoid page refresh
+    // The caller can handle the redirect after checking for errors
     if (response.redirect && response.tenantSlug) {
-      const hostname = window.location.hostname;
-      const protocol = window.location.protocol;
-      const port = window.location.port ? `:${window.location.port}` : '';
-      
-      // For localhost/IP, use query parameter
-      if (hostname === 'localhost' || hostname.includes('127.0.0.1') || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
-        window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(response.tenantSlug)}`;
-        return; // Don't set user, wait for redirect
-      } else {
-        // For production, redirect to subdomain
-        const parts = hostname.split('.');
-        if (parts.length >= 2) {
-          const rootDomain = parts.slice(-2).join('.');
-          window.location.href = `${protocol}//${response.tenantSlug}.${rootDomain}${port}/login`;
-          return; // Don't set user, wait for redirect
-        } else {
-          // Fallback to query parameter
-          window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(response.tenantSlug)}`;
-          return;
-        }
-      }
+      // Return redirect info so caller can handle it
+      return { redirect: true, tenantSlug: response.tenantSlug };
     }
     
     // Normal login success - user should be present if not redirected

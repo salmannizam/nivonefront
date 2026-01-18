@@ -18,13 +18,39 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Tenant user login - will auto-redirect if tenant slug is wrong
-      await login(email, password);
-      // Only redirect to dashboard if login was successful (not redirected)
+      // Call login from auth context
+      const result = await login(email, password);
+      
+      // Check if redirect is needed (correct credentials but wrong/missing tenant slug)
+      if (result && typeof result === 'object' && result.redirect && result.tenantSlug) {
+        const hostname = window.location.hostname;
+        const protocol = window.location.protocol;
+        const port = window.location.port ? `:${window.location.port}` : '';
+        
+        // For localhost/IP, use query parameter
+        if (hostname === 'localhost' || hostname.includes('127.0.0.1') || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
+          window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(result.tenantSlug)}`;
+          return; // Exit early, redirect will happen
+        } else {
+          // For production, redirect to subdomain (slug.domain.com)
+          const parts = hostname.split('.');
+          if (parts.length >= 2) {
+            const rootDomain = parts.slice(-2).join('.');
+            window.location.href = `${protocol}//${result.tenantSlug}.${rootDomain}${port}/login`;
+            return; // Exit early, redirect will happen
+          } else {
+            // Fallback to query parameter
+            window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(result.tenantSlug)}`;
+            return;
+          }
+        }
+      }
+
+      // Normal login success - redirect to dashboard
       router.push('/dashboard');
     } catch (err: any) {
+      // Show error message without page refresh
       const errorMessage = err.response?.data?.message || err.message || 'Login failed';
-      // Show error message from API
       setError(errorMessage);
     } finally {
       setLoading(false);
