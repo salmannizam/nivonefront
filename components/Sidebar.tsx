@@ -23,7 +23,7 @@ const sidebarConfig: SidebarItem[] = [
     feature: null,
   },
   {
-    name: 'Property Management',
+    name: 'Property',
     icon: '🏢',
     children: [
       { name: 'Buildings', href: '/dashboard/buildings', icon: '🏢', feature: 'buildings' },
@@ -32,7 +32,7 @@ const sidebarConfig: SidebarItem[] = [
     ],
   },
   {
-    name: 'Residents & Payments',
+    name: 'Residents',
     icon: '👥',
     children: [
       { name: 'Residents', href: '/dashboard/residents', icon: '👥', feature: 'residents' },
