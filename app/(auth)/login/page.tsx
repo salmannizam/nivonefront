@@ -18,41 +18,70 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Call login from auth context
-      const result = await login(email, password);
+      // Call auth service directly to have better control over error handling
+      const { getTenantSlug } = await import('@/lib/auth');
+      const api = (await import('@/lib/api')).default;
+      const tenantSlug = getTenantSlug();
       
+      const response = await api.post('/auth/login', {
+        email,
+        password,
+        tenantSlug: tenantSlug || undefined,
+      });
+
       // Check if redirect is needed (correct credentials but wrong/missing tenant slug)
-      if (result && typeof result === 'object' && result.redirect && result.tenantSlug) {
+      if (response.data.redirect && response.data.tenantSlug) {
         const hostname = window.location.hostname;
         const protocol = window.location.protocol;
         const port = window.location.port ? `:${window.location.port}` : '';
         
         // For localhost/IP, use query parameter
         if (hostname === 'localhost' || hostname.includes('127.0.0.1') || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
-          window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(result.tenantSlug)}`;
-          return; // Exit early, redirect will happen
+          // Already on correct tenant, just reload with tenant in query
+          if (tenantSlug === response.data.tenantSlug) {
+            // Same tenant, proceed with login
+            await login(email, password);
+            router.push('/dashboard');
+          } else {
+            // Different tenant, redirect
+            window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(response.data.tenantSlug)}`;
+            return;
+          }
         } else {
-          // For production, redirect to subdomain (slug.domain.com)
+          // For production, redirect to subdomain (slug.domain.com/login)
           const parts = hostname.split('.');
           if (parts.length >= 2) {
             const rootDomain = parts.slice(-2).join('.');
-            window.location.href = `${protocol}//${result.tenantSlug}.${rootDomain}${port}/login`;
-            return; // Exit early, redirect will happen
+            // Check if we're already on the correct subdomain
+            if (hostname.startsWith(`${response.data.tenantSlug}.`)) {
+              // Already on correct subdomain, proceed with login
+              await login(email, password);
+              router.push('/dashboard');
+            } else {
+              // Redirect to correct subdomain
+              window.location.href = `${protocol}//${response.data.tenantSlug}.${rootDomain}${port}/login`;
+              return;
+            }
           } else {
             // Fallback to query parameter
-            window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(result.tenantSlug)}`;
+            window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(response.data.tenantSlug)}`;
             return;
           }
         }
       }
 
-      // Normal login success - redirect to dashboard
-      router.push('/dashboard');
+      // Normal login success - set user and redirect to dashboard
+      if (response.data.user) {
+        await login(email, password);
+        router.push('/dashboard');
+      } else {
+        setError('Login failed. Please try again.');
+        setLoading(false);
+      }
     } catch (err: any) {
       // Show error message without page refresh
       const errorMessage = err.response?.data?.message || err.message || 'Login failed';
       setError(errorMessage);
-    } finally {
       setLoading(false);
     }
   };

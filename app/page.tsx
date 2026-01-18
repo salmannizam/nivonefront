@@ -48,42 +48,62 @@ export default function Home() {
     setLoginLoading(true);
 
     try {
-      // Call login from auth context
-      const result = await login(loginEmail, loginPassword);
+      // Call auth service directly to have better control over error handling
+      const { getTenantSlug } = await import('@/lib/auth');
+      const tenantSlug = getTenantSlug();
       
+      const response = await api.post('/auth/login', {
+        email: loginEmail,
+        password: loginPassword,
+        tenantSlug: tenantSlug || undefined,
+      }).catch((err) => {
+        // Re-throw to be caught by outer catch block
+        throw err;
+      });
+
       // Check if redirect is needed (correct credentials but wrong/missing tenant slug)
-      if (result && typeof result === 'object' && result.redirect && result.tenantSlug) {
+      if (response.data.redirect && response.data.tenantSlug) {
         const hostname = window.location.hostname;
         const protocol = window.location.protocol;
         const port = window.location.port ? `:${window.location.port}` : '';
         
         // For localhost/IP, use query parameter
         if (hostname === 'localhost' || hostname.includes('127.0.0.1') || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
-          window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(result.tenantSlug)}`;
+          // Redirect to login page with tenant slug - user will login again there
+          window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(response.data.tenantSlug)}`;
           return; // Exit early, redirect will happen
         } else {
-          // For production, redirect to subdomain (slug.domain.com)
+          // For production, redirect to subdomain login page (slug.domain.com/login)
           const parts = hostname.split('.');
           if (parts.length >= 2) {
             const rootDomain = parts.slice(-2).join('.');
-            window.location.href = `${protocol}//${result.tenantSlug}.${rootDomain}${port}/login`;
+            // Redirect to slug.domain.com/login - user will login again there
+            window.location.href = `${protocol}//${response.data.tenantSlug}.${rootDomain}${port}/login`;
             return; // Exit early, redirect will happen
           } else {
             // Fallback to query parameter
-            window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(result.tenantSlug)}`;
+            window.location.href = `${protocol}//${hostname}${port}/login?tenant=${encodeURIComponent(response.data.tenantSlug)}`;
             return;
           }
         }
       }
 
-      // Normal login success - redirect to dashboard
-      router.push('/dashboard');
+      // Normal login success - set user and redirect to dashboard
+      if (response.data.user) {
+        // Use the login function to set user state properly
+        await login(loginEmail, loginPassword);
+        router.push('/dashboard');
+      } else {
+        setLoginError('Login failed. Please try again.');
+        setLoginLoading(false);
+      }
     } catch (err: any) {
       // Show error message without page refresh
+      // Extract error message from response
       const errorMessage = err.response?.data?.message || err.message || 'Login failed';
       setLoginError(errorMessage);
-    } finally {
       setLoginLoading(false);
+      // Don't redirect or refresh - just show the error
     }
   };
 

@@ -174,6 +174,12 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Don't handle login endpoint errors - let the component handle them
+    // This prevents automatic redirects on login failures
+    if (originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/admin/auth/login')) {
+      return Promise.reject(error);
+    }
+
     // Only handle 401 errors and avoid infinite loops
     if (error.response?.status === 401 && !originalRequest._retry && !originalRequest._skipRefresh) {
       originalRequest._retry = true;
