@@ -18,6 +18,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [tenantSlug, setTenantSlug] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: '' });
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,6 +40,13 @@ export default function SignupPage() {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
     if (!passwordRegex.test(formData.password)) {
       setError('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      return;
+    }
+
+    // Validate tenant slug format
+    const slugRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
+    if (!slugRegex.test(formData.tenantSlug)) {
+      setError('Tenant slug can only contain lowercase letters, numbers, and hyphens. It must start and end with alphanumeric characters.');
       return;
     }
 
@@ -94,7 +102,19 @@ export default function SignupPage() {
         }
       }, 3000);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Signup failed. Please try again.';
+      let errorMessage = err.response?.data?.message || 'Signup failed. Please try again.';
+      
+      // User-friendly error messages
+      if (errorMessage.includes('No default plan available') || errorMessage.includes('default plan')) {
+        errorMessage = 'Registration is currently unavailable. Please contact support to set up the system.';
+      } else if (errorMessage.includes('already taken') || errorMessage.includes('duplicate')) {
+        errorMessage = 'This tenant name or slug is already taken. Please choose a different one.';
+      } else if (errorMessage.includes('reserved')) {
+        errorMessage = 'This slug is reserved. Please choose a different tenant slug.';
+      } else if (errorMessage.includes('Unable to create account')) {
+        errorMessage = 'An account with this email already exists. Please use a different email or contact support.';
+      }
+      
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -138,8 +158,9 @@ export default function SignupPage() {
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
-              {error}
+            <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm flex items-start gap-2">
+              <span className="text-lg">⚠️</span>
+              <span className="flex-1">{error}</span>
             </div>
           )}
           <div className="space-y-4">
@@ -182,8 +203,13 @@ export default function SignupPage() {
                 }}
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                This will be your subdomain: {formData.tenantSlug || 'your-slug'}.yourdomain.com
+                This will be your subdomain: <span className="font-semibold text-indigo-600 dark:text-indigo-400">{formData.tenantSlug || 'your-slug'}</span>.yourdomain.com
               </p>
+              {formData.tenantSlug && !/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(formData.tenantSlug) && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  Invalid format. Use only lowercase letters, numbers, and hyphens.
+                </p>
+              )}
             </div>
             <div>
               <label htmlFor="ownerName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -238,8 +264,55 @@ export default function SignupPage() {
                 className="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm sm:text-base transition-all"
                 placeholder="Min 8 chars: uppercase, lowercase, number"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) => {
+                  const password = e.target.value;
+                  setFormData({ ...formData, password });
+                  
+                  // Calculate password strength
+                  let score = 0;
+                  let feedback = '';
+                  if (password.length >= 8) score++;
+                  if (/[a-z]/.test(password)) score++;
+                  if (/[A-Z]/.test(password)) score++;
+                  if (/\d/.test(password)) score++;
+                  if (/[^a-zA-Z\d]/.test(password)) score++;
+                  
+                  if (score < 2) feedback = 'Weak';
+                  else if (score < 4) feedback = 'Medium';
+                  else feedback = 'Strong';
+                  
+                  setPasswordStrength({ score, feedback });
+                }}
               />
+              {formData.password && (
+                <div className="mt-1">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all ${
+                          passwordStrength.score < 2
+                            ? 'bg-red-500 w-1/3'
+                            : passwordStrength.score < 4
+                            ? 'bg-yellow-500 w-2/3'
+                            : 'bg-green-500 w-full'
+                        }`}
+                      />
+                    </div>
+                    <span className={`text-xs font-medium ${
+                      passwordStrength.score < 2
+                        ? 'text-red-600 dark:text-red-400'
+                        : passwordStrength.score < 4
+                        ? 'text-yellow-600 dark:text-yellow-400'
+                        : 'text-green-600 dark:text-green-400'
+                    }`}>
+                      {passwordStrength.feedback}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Must have: uppercase, lowercase, number
+                  </p>
+                </div>
+              )}
             </div>
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -280,12 +353,15 @@ export default function SignupPage() {
             </button>
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Already have an account?{' '}
-              <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+              <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">
                 Sign in
               </Link>
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              By creating an account, you agree to our Terms of Service and Privacy Policy
             </p>
           </div>
         </form>
