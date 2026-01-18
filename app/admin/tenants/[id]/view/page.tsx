@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
-import { showError, showSuccess } from '@/lib/utils';
+import { showError, showSuccess, formatDate } from '@/lib/utils';
 
 interface Tenant {
   _id: string;
@@ -208,7 +208,7 @@ export default function TenantViewPage() {
             <div className="bg-white/50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600 transform hover:scale-105 transition-all">
               <dt className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Created</dt>
               <dd className="text-sm sm:text-base text-gray-900 dark:text-white font-bold">
-                {new Date(tenant.createdAt).toLocaleDateString()}
+                {formatDate(tenant.createdAt)}
               </dd>
             </div>
           </dl>
@@ -253,10 +253,10 @@ export default function TenantViewPage() {
               { label: 'Billing Cycle', value: subscription.planId.billingCycle, icon: '🔄' },
               { label: 'Amount', value: `₹${subscription.amount.toLocaleString()}`, icon: '💰' },
               { label: 'Status', value: subscription.status, icon: '📊', badge: true },
-              { label: 'Start Date', value: new Date(subscription.startDate).toLocaleDateString(), icon: '📅' },
-              { label: 'Next Billing', value: new Date(subscription.nextBillingDate).toLocaleDateString(), icon: '⏰' },
+              { label: 'Start Date', value: formatDate(subscription.startDate), icon: '📅' },
+              { label: 'Next Billing', value: formatDate(subscription.nextBillingDate), icon: '⏰' },
               { label: 'Payment Status', value: subscription.isPaid ? 'Paid' : 'Unpaid', icon: '💵', badge: true, paid: subscription.isPaid },
-              ...(subscription.lastPaymentDate ? [{ label: 'Last Payment', value: new Date(subscription.lastPaymentDate).toLocaleDateString(), icon: '✅' }] : []),
+              ...(subscription.lastPaymentDate ? [{ label: 'Last Payment', value: formatDate(subscription.lastPaymentDate), icon: '✅' }] : []),
             ].map((item, index) => (
               <div
                 key={index}

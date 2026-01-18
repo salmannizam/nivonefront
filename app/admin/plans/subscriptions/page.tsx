@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import { showSuccess, showError } from '@/lib/utils';
+import { showSuccess, showError, formatDate } from '@/lib/utils';
 import Link from 'next/link';
 
 interface Subscription {
@@ -225,7 +225,7 @@ export default function SubscriptionsPage() {
                       </td>
                       <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                         <div className="text-gray-900 dark:text-white font-medium">
-                          {new Date(sub.nextBillingDate).toLocaleDateString()}
+                          {formatDate(sub.nextBillingDate)}
                         </div>
                         <div
                           className={`text-xs mt-1 ${
@@ -322,7 +322,7 @@ export default function SubscriptionsPage() {
                   <div>
                     <span className="text-gray-500 dark:text-gray-400">Next Billing:</span>
                     <span className="ml-2 font-medium text-gray-900 dark:text-white">
-                      {new Date(sub.nextBillingDate).toLocaleDateString()}
+                      {formatDate(sub.nextBillingDate)}
                     </span>
                   </div>
                   <div>

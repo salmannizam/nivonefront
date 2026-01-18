@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import Link from 'next/link';
+import { formatDate } from '@/lib/utils';
 
 interface PlatformStats {
   totalTenants: number;
@@ -209,7 +210,7 @@ export default function AdminDashboardPage() {
                     {sub.tenantId.name} ({sub.tenantId.slug})
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {sub.planId.name} • Due: {new Date(sub.nextBillingDate).toLocaleDateString()} • ₹{sub.amount.toLocaleString()}
+                    {sub.planId.name} • Due: {formatDate(sub.nextBillingDate)} • ₹{sub.amount.toLocaleString()}
                   </div>
                 </div>
               </div>

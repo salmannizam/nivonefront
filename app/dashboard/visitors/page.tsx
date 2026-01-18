@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError } from '@/lib/utils';
+import { logError, formatDate, formatDateTime } from '@/lib/utils';
 
 interface Visitor {
   _id: string;
@@ -386,16 +386,16 @@ export default function VisitorsPage() {
                   </td>
                   <td className="px-3 sm:px-6 py-4 text-gray-900 dark:text-white">{visitor.purpose}</td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
-                    {new Date(visitor.visitDate).toLocaleDateString()}
+                    {formatDate(visitor.visitDate)}
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
                     {visitor.checkInTime
-                      ? new Date(visitor.checkInTime).toLocaleTimeString()
+                      ? formatDateTime(visitor.checkInTime).split(' ')[1] || '-'
                       : '-'}
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
                     {visitor.checkOutTime
-                      ? new Date(visitor.checkOutTime).toLocaleTimeString()
+                      ? formatDateTime(visitor.checkOutTime).split(' ')[1] || '-'
                       : '-'}
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap">

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError } from '@/lib/utils';
+import { logError, formatDate } from '@/lib/utils';
 
 interface Asset {
   _id: string;
@@ -502,7 +502,7 @@ export default function AssetsPage() {
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
                       {asset.nextMaintenanceDate
-                        ? new Date(asset.nextMaintenanceDate).toLocaleDateString()
+                        ? formatDate(asset.nextMaintenanceDate)
                         : '-'}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">

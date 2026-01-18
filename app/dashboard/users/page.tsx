@@ -111,6 +111,12 @@ export default function UsersPage() {
   };
 
   const handleToggleActive = async (id: string, isActive: boolean) => {
+    // Prevent users from deactivating themselves
+    if (user && user.id === id) {
+      alert('You cannot deactivate your own account. Please ask another administrator to deactivate your account.');
+      return;
+    }
+    
     try {
       await api.patch(`/users/${id}`, { isActive: !isActive });
       loadUsers();
@@ -238,7 +244,7 @@ export default function UsersPage() {
                   required
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  disabled={!!(editing && user?.role !== 'OWNER')}
+                  disabled={!!(editing && (user?.role !== 'OWNER' || editing._id === user?.id))}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-500 dark:disabled:text-gray-400 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="STAFF">Staff</option>
@@ -248,6 +254,11 @@ export default function UsersPage() {
                 {editing && user?.role !== 'OWNER' && (
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Only OWNER can change user roles
+                  </p>
+                )}
+                {editing && editing._id === user?.id && (
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                    You cannot change your own role. Please ask another administrator to update your role.
                   </p>
                 )}
               </div>
@@ -343,6 +354,14 @@ export default function UsersPage() {
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                     {userItem.role === 'OWNER' && user?.role !== 'OWNER' ? (
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        userItem.isActive
+                          ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                      }`}>
+                        {userItem.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    ) : userItem._id === user?.id ? (
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         userItem.isActive
                           ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'

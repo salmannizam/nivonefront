@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError } from '@/lib/utils';
+import { logError, formatDate } from '@/lib/utils';
 
 interface ActivityLog {
   _id: string;
@@ -79,7 +79,8 @@ export default function ActivityPage() {
     if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+    // For dates older than 7 days, use dd-mm-yyyy format
+    return formatDate(date);
   };
 
   if (loading) {

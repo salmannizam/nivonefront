@@ -6,7 +6,7 @@ import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import TagSelector from '@/components/TagSelector';
 import { useFeatures } from '@/lib/feature-context';
-import { logError } from '@/lib/utils';
+import { logError, formatDate } from '@/lib/utils';
 
 interface RentPayment {
   _id: string;
@@ -638,7 +638,7 @@ export default function PaymentsPage() {
                             ₹{payment.amountPaid.toLocaleString()}
                           </td>
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
-                            {new Date(payment.dueDate).toLocaleDateString()}
+                            {formatDate(payment.dueDate)}
                           </td>
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                             <span
@@ -988,7 +988,7 @@ export default function PaymentsPage() {
                           ₹{payment.amount.toLocaleString()}
                         </td>
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
-                          {new Date(payment.date).toLocaleDateString()}
+                          {formatDate(payment.date)}
                         </td>
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap capitalize text-gray-900 dark:text-white">
                           {payment.paymentMode}
@@ -1259,7 +1259,7 @@ export default function PaymentsPage() {
                         </td>
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
                           {deposit.receivedDate
-                            ? new Date(deposit.receivedDate).toLocaleDateString()
+                            ? formatDate(deposit.receivedDate)
                             : '-'}
                         </td>
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap">

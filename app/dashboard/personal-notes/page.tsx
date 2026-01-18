@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError, showError, showSuccess } from '@/lib/utils';
+import { logError, showError, showSuccess, formatDateTime } from '@/lib/utils';
 
 interface PersonalNote {
   _id: string;
@@ -113,17 +113,7 @@ export default function PersonalNotesPage() {
     }
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  // Use formatDateTime from utils for consistency
 
   return (
     <FeatureGuard feature="personalNotes">
@@ -274,7 +264,7 @@ export default function PersonalNotesPage() {
                 </div>
                 <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {formatDate(note.updatedAt || note.createdAt)}
+                    {formatDateTime(note.updatedAt || note.createdAt)}
                   </div>
                   <div className="flex gap-2">
                     <button

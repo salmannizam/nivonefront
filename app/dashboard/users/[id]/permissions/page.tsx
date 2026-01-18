@@ -58,6 +58,14 @@ export default function UserPermissionsPage() {
       router.push('/dashboard');
       return;
     }
+    
+    // Prevent users from editing their own permissions
+    if (currentUser && currentUser.id === userId) {
+      alert('You cannot modify your own permissions. Please ask another administrator to update your permissions.');
+      router.push('/dashboard/users');
+      return;
+    }
+    
     loadData();
   }, [userId, currentUser, router]);
 
@@ -127,6 +135,9 @@ export default function UserPermissionsPage() {
     return null;
   }
 
+  // Check if user is trying to edit their own permissions
+  const isEditingSelf = currentUser && currentUser.id === userId;
+
   // Group features by category
   const featuresByCategory: Record<string, string[]> = {};
   Object.keys(tenantFeatures).forEach((key) => {
@@ -163,7 +174,7 @@ export default function UserPermissionsPage() {
           </button>
           <button
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || isEditingSelf}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? 'Saving...' : 'Save Permissions'}
@@ -171,12 +182,20 @@ export default function UserPermissionsPage() {
         </div>
       </div>
 
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
-        <p className="text-sm text-yellow-800 dark:text-yellow-200">
-          <strong>Note:</strong> You can only assign features that are enabled for your tenant. 
-          Features disabled at the tenant level cannot be assigned to users.
-        </p>
-      </div>
+      {isEditingSelf ? (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+          <p className="text-sm text-red-800 dark:text-red-200">
+            <strong>Access Denied:</strong> You cannot modify your own permissions. This prevents you from accidentally locking yourself out of the system. Please ask another administrator to update your permissions.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+            <strong>Note:</strong> You can only assign features that are enabled for your tenant. 
+            Features disabled at the tenant level cannot be assigned to users.
+          </p>
+        </div>
+      )}
 
       {Object.keys(featuresByCategory).length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
@@ -216,9 +235,10 @@ export default function UserPermissionsPage() {
                             id={`feature-${featureKey}`}
                             checked={isEnabled}
                             onChange={(e) => handleFeatureToggle(featureKey, e.target.checked)}
+                            disabled={isEditingSelf}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 ${isEditingSelf ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
                         </label>
                       </div>
                     </div>

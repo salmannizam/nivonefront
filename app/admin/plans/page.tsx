@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
-import { showSuccess, showError } from '@/lib/utils';
+import { showSuccess, showError, formatDate } from '@/lib/utils';
 
 interface Plan {
   _id: string;
@@ -167,7 +167,7 @@ export default function PlansPage() {
                     {sub.tenantId.name} ({sub.tenantId.slug})
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Plan: {sub.planId.name} • Due: {new Date(sub.nextBillingDate).toLocaleDateString()} • ₹{sub.amount.toLocaleString()}
+                    Plan: {sub.planId.name} • Due: {formatDate(sub.nextBillingDate)} • ₹{sub.amount.toLocaleString()}
                   </div>
                 </div>
                 {!sub.isPaid && (

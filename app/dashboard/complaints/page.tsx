@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError } from '@/lib/utils';
+import { logError, formatDate } from '@/lib/utils';
 
 interface Complaint {
   _id: string;
@@ -428,7 +428,7 @@ export default function ComplaintsPage() {
                     </select>
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {new Date(complaint.createdAt).toLocaleDateString()}
+                    {formatDate(complaint.createdAt)}
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex flex-wrap gap-2">

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
-import { showSuccess, showError } from '@/lib/utils';
+import { showSuccess, showError, formatDate } from '@/lib/utils';
 
 interface Tenant {
   _id: string;
@@ -162,8 +162,8 @@ export default function AssignPlanPage() {
             {[
               { label: 'Plan', value: subscription.planId.name },
               { label: 'Status', value: subscription.status, badge: true },
-              { label: 'Start Date', value: new Date(subscription.startDate).toLocaleDateString() },
-              { label: 'Next Billing', value: new Date(subscription.nextBillingDate).toLocaleDateString() },
+              { label: 'Start Date', value: formatDate(subscription.startDate) },
+              { label: 'Next Billing', value: formatDate(subscription.nextBillingDate) },
               { label: 'Amount', value: `₹${subscription.amount.toLocaleString()}` },
               { label: 'Paid', value: subscription.isPaid ? 'Yes' : 'No', badge: true, paid: subscription.isPaid },
             ].map((item, index) => (

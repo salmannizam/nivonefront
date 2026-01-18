@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import { showSuccess, showError } from '@/lib/utils';
+import { showSuccess, showError, formatDate } from '@/lib/utils';
 
 interface Tenant {
   _id: string;
@@ -271,7 +271,7 @@ export default function AdminTenantsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 font-medium">
-                      {new Date(tenant.createdAt).toLocaleDateString()}
+                      {formatDate(tenant.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex gap-2">
@@ -349,7 +349,7 @@ export default function AdminTenantsPage() {
                 <div className="bg-white/50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600">
                   <span className="text-gray-500 dark:text-gray-400 block text-xs mb-1">Created:</span>
                   <span className="font-bold text-gray-900 dark:text-white">
-                    {new Date(tenant.createdAt).toLocaleDateString()}
+                    {formatDate(tenant.createdAt)}
                   </span>
                 </div>
               </div>

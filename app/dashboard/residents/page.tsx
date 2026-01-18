@@ -5,7 +5,7 @@ import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
 import TagSelector from '@/components/TagSelector';
-import { logError } from '@/lib/utils';
+import { logError, formatDate } from '@/lib/utils';
 
 interface Resident {
   _id: string;
@@ -706,7 +706,7 @@ export default function ResidentsPage() {
                       )}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                      {new Date(resident.checkInDate).toLocaleDateString()}
+                      {formatDate(resident.checkInDate)}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                       <span
@@ -730,7 +730,7 @@ export default function ResidentsPage() {
                       </span>
                       {resident.status === 'VACATED' && resident.moveOutDate && (
                         <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          Moved out: {new Date(resident.moveOutDate).toLocaleDateString()}
+                          Moved out: {formatDate(resident.moveOutDate)}
                         </div>
                       )}
                       {resident.status === 'VACATED' && resident.settlement && !resident.settlementCompleted && (
