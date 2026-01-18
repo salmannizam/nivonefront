@@ -3,12 +3,14 @@ import api from './api';
 export interface LoginCredentials {
   email: string;
   password: string;
+  tenantSlug: string; // Required: tenant slug from subdomain or query parameter
 }
 
 export interface RegisterData {
   email: string;
   password: string;
   name: string;
+  tenantSlug: string; // Required: tenant slug from subdomain or query parameter
   role?: string;
 }
 
@@ -24,13 +26,55 @@ export interface AuthResponse {
   user: User;
 }
 
+// Helper function to extract tenant slug from subdomain or query parameter
+export function getTenantSlug(): string | null {
+  if (typeof window === 'undefined') return null;
+  
+  // First, try query parameter (for localhost/testing)
+  const urlParams = new URLSearchParams(window.location.search);
+  const tenantFromQuery = urlParams.get('tenant');
+  if (tenantFromQuery) {
+    return tenantFromQuery;
+  }
+  
+  // Then, try to extract from subdomain
+  const hostname = window.location.hostname;
+  
+  // Skip for localhost or IP addresses
+  if (hostname === 'localhost' || hostname.includes('127.0.0.1') || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
+    return null;
+  }
+  
+  // Extract subdomain (first part before first dot)
+  const parts = hostname.split('.');
+  if (parts.length > 2) {
+    const subdomain = parts[0];
+    // Skip reserved subdomains
+    if (subdomain && 
+        subdomain !== 'www' && 
+        subdomain !== 'api' && 
+        subdomain !== 'app' &&
+        !subdomain.includes('api')) {
+      return subdomain;
+    }
+  }
+  
+  return null;
+}
+
 export const authService = {
   /**
-   * Tenant user login - requires tenant context from subdomain
+   * Tenant user login - requires tenant slug from subdomain or query parameter
    * Cookies are set automatically by backend (HTTP-only)
    */
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/auth/login', credentials);
+    // Ensure tenantSlug is included in request
+    const loginData = {
+      email: credentials.email,
+      password: credentials.password,
+      tenantSlug: credentials.tenantSlug,
+    };
+    const response = await api.post<AuthResponse>('/auth/login', loginData);
     // Tokens are in HTTP-only cookies, only return user data
     return response.data;
   },
@@ -46,7 +90,15 @@ export const authService = {
   },
 
   async register(data: RegisterData): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/auth/register', data);
+    // Ensure tenantSlug is included in request
+    const registerData = {
+      email: data.email,
+      password: data.password,
+      name: data.name,
+      tenantSlug: data.tenantSlug,
+      role: data.role,
+    };
+    const response = await api.post<AuthResponse>('/auth/register', registerData);
     // Tokens are in HTTP-only cookies, only return user data
     return response.data;
   },

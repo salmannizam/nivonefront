@@ -8,6 +8,7 @@ import Link from 'next/link';
 export default function SignupPage() {
   const [formData, setFormData] = useState({
     tenantName: '',
+    tenantSlug: '', // Tenant slug provided by user/admin
     ownerName: '',
     ownerEmail: '',
     password: '',
@@ -46,6 +47,7 @@ export default function SignupPage() {
     try {
       const response = await api.post('/auth/signup', {
         tenantName: formData.tenantName,
+        tenantSlug: formData.tenantSlug, // Frontend sends tenant slug
         ownerName: formData.ownerName,
         ownerEmail: formData.ownerEmail,
         password: formData.password,
@@ -159,8 +161,28 @@ export default function SignupPage() {
                   setFormData({ ...formData, tenantName: sanitized });
                 }}
               />
+            </div>
+            <div>
+              <label htmlFor="tenantSlug" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Tenant Slug (Subdomain) *
+              </label>
+              <input
+                id="tenantSlug"
+                name="tenantSlug"
+                type="text"
+                required
+                pattern="[a-z0-9]([a-z0-9-]*[a-z0-9])?"
+                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm sm:text-base transition-all"
+                placeholder="e.g., sunshine-pg"
+                value={formData.tenantSlug}
+                onChange={(e) => {
+                  // Sanitize: lowercase, alphanumeric and hyphens only
+                  const sanitized = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '').substring(0, 63);
+                  setFormData({ ...formData, tenantSlug: sanitized });
+                }}
+              />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Your subdomain will be auto-generated from this name
+                This will be your subdomain: {formData.tenantSlug || 'your-slug'}.yourdomain.com
               </p>
             </div>
             <div>

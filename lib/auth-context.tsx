@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { authService, User } from './auth';
+import { authService, User, getTenantSlug } from './auth';
 
 interface AuthContextType {
   user: User | null;
@@ -34,12 +34,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await authService.login({ email, password });
+    // Get tenant slug from subdomain or query parameter
+    const tenantSlug = getTenantSlug();
+    if (!tenantSlug) {
+      throw new Error('Tenant slug is required. Please access via your tenant subdomain or use ?tenant=slug query parameter.');
+    }
+    
+    const response = await authService.login({ email, password, tenantSlug });
     setUser(response.user);
   };
 
   const register = async (data: { email: string; password: string; name: string }) => {
-    const response = await authService.register(data);
+    // Get tenant slug from subdomain or query parameter
+    const tenantSlug = getTenantSlug();
+    if (!tenantSlug) {
+      throw new Error('Tenant slug is required. Please access via your tenant subdomain or use ?tenant=slug query parameter.');
+    }
+    
+    const response = await authService.register({ ...data, tenantSlug });
     setUser(response.user);
   };
 
