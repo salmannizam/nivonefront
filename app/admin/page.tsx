@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import Link from 'next/link';
 import { formatDate } from '@/lib/utils';
+import DefaultPlanModal from '@/components/DefaultPlanModal';
 
 interface PlatformStats {
   totalTenants: number;
@@ -35,11 +36,25 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [dueSubscriptions, setDueSubscriptions] = useState<SubscriptionDue[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDefaultPlanModal, setShowDefaultPlanModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     loadStats();
+    checkDefaultPlan();
   }, []);
+
+  const checkDefaultPlan = async () => {
+    try {
+      const response = await api.get('/admin/plans/default/check');
+      if (!response.data?.hasDefault) {
+        setShowDefaultPlanModal(true);
+      }
+    } catch (error: any) {
+      // If endpoint doesn't exist or error, don't show modal
+      console.error('Failed to check default plan:', error);
+    }
+  };
 
   const loadStats = async () => {
     try {
@@ -264,6 +279,12 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
       </div>
+
+      {/* Default Plan Modal */}
+      <DefaultPlanModal
+        isOpen={showDefaultPlanModal}
+        onClose={() => setShowDefaultPlanModal(false)}
+      />
     </div>
   );
 }

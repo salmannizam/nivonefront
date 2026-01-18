@@ -8,7 +8,7 @@ import { FeatureProvider } from '@/lib/feature-context';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Hostel Management System',
+  title: 'NivaasOne',
   description: 'Multi-tenant Hostel/PG Management Platform',
 };
 
