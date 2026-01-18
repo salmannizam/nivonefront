@@ -225,22 +225,29 @@ export default function Sidebar() {
       <div
         className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 shadow-lg transform ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } transition-transform duration-300 ease-in-out flex flex-col overflow-hidden`}
+        } transition-transform duration-300 ease-in-out flex flex-col h-screen lg:h-full overflow-hidden`}
       >
         {/* Header - Fixed at top */}
-        <div className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-          <h1 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white">
-            Hostel Management
-          </h1>
-          {user && (
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {user.name} ({user.role})
-            </p>
-          )}
+        <div className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md">
+              <span className="text-white text-lg font-bold">HM</span>
+            </div>
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white">
+                Hostel Management
+              </h1>
+              {user && (
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                  {user.name} ({user.role})
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Navigation - Scrollable */}
-        <nav className="flex-1 overflow-y-auto py-4">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2">
           {visibleItems.map((item) => {
             // Standalone item (no children)
             if (!item.children) {
@@ -250,16 +257,21 @@ export default function Sidebar() {
                   key={item.name}
                   href={item.href!}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center px-4 sm:px-6 py-3 mx-2 rounded-lg transition-all duration-200 ${
+                  className={`flex items-center px-3 sm:px-4 py-3 rounded-xl mb-2 transition-all duration-200 ${
                     isActive
-                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30 scale-[1.02]'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:scale-[1.01]'
                   }`}
                 >
-                  <span className="mr-3 text-lg">{item.icon}</span>
-                  <span className={`text-sm sm:text-base font-medium ${isActive ? 'font-semibold' : ''}`}>
+                  <span className={`mr-3 text-xl transition-transform ${isActive ? 'scale-110' : ''}`}>
+                    {item.icon}
+                  </span>
+                  <span className={`text-sm sm:text-base font-medium ${isActive ? 'font-semibold text-white' : ''}`}>
                     {item.name}
                   </span>
+                  {isActive && (
+                    <div className="ml-auto w-2 h-2 rounded-full bg-white animate-pulse" />
+                  )}
                 </Link>
               );
             }
@@ -269,25 +281,27 @@ export default function Sidebar() {
             const sectionActive = isSectionActive(item);
 
             return (
-              <div key={item.name} className="mb-1">
+              <div key={item.name} className="mb-2">
                 {/* Parent Header - Clickable to toggle */}
                 <button
                   onClick={() => toggleSection(item.name)}
-                  className={`w-full flex items-center justify-between px-4 sm:px-6 py-3 mx-2 rounded-lg transition-all duration-200 ${
+                  className={`w-full flex items-center justify-between px-3 sm:px-4 py-3 rounded-xl transition-all duration-200 ${
                     sectionActive
                       ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'
                   }`}
                 >
-                  <div className="flex items-center">
-                    <span className="mr-3 text-lg">{item.icon}</span>
-                    <span className={`text-sm sm:text-base font-semibold ${sectionActive ? 'text-blue-700 dark:text-blue-300' : ''}`}>
+                  <div className="flex items-center min-w-0">
+                    <span className={`mr-3 text-xl flex-shrink-0 ${sectionActive ? 'scale-110' : ''}`}>
+                      {item.icon}
+                    </span>
+                    <span className={`text-sm sm:text-base font-semibold truncate ${sectionActive ? 'text-blue-700 dark:text-blue-300' : ''}`}>
                       {item.name}
                     </span>
                   </div>
                   {/* Chevron Icon */}
                   <svg
-                    className={`w-4 h-4 transition-transform duration-200 ${
+                    className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ml-2 ${
                       sectionOpen ? 'rotate-180' : ''
                     } ${sectionActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}
                     fill="none"
@@ -308,14 +322,14 @@ export default function Sidebar() {
                           key={child.name}
                           href={child.href!}
                           onClick={() => setIsOpen(false)}
-                          className={`flex items-center px-4 sm:px-6 py-2.5 mx-2 ml-8 rounded-lg transition-all duration-200 ${
+                          className={`flex items-center px-3 sm:px-4 py-2.5 ml-6 rounded-lg transition-all duration-200 ${
                             isChildActive
                               ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
-                              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50'
                           }`}
                         >
-                          <span className="mr-3 text-base">{child.icon}</span>
-                          <span className={`text-sm ${isChildActive ? 'font-semibold' : ''}`}>
+                          <span className="mr-3 text-base flex-shrink-0">{child.icon}</span>
+                          <span className={`text-sm truncate ${isChildActive ? 'font-semibold' : ''}`}>
                             {child.name}
                           </span>
                         </Link>
@@ -327,6 +341,13 @@ export default function Sidebar() {
             );
           })}
         </nav>
+
+        {/* Footer */}
+        <div className="flex-shrink-0 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            © {new Date().getFullYear()} Hostel Management
+          </div>
+        </div>
       </div>
     </>
   );

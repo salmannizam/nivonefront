@@ -39,11 +39,13 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       <Header />
-      <div className="flex pt-16 lg:pt-0">
+      <div className="flex flex-1 pt-16 lg:pt-0 overflow-hidden">
         <Sidebar />
-        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 lg:ml-0 overflow-x-hidden">{children}</main>
+        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 lg:ml-0 overflow-y-auto overflow-x-hidden min-w-0">
+          {children}
+        </main>
       </div>
       <ToastContainer />
     </div>

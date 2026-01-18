@@ -72,10 +72,30 @@ export default function TenantViewPage() {
   const handleImpersonate = async () => {
     try {
       const response = await api.post(`/admin/tenants/${tenantId}/impersonate`);
-      const { token } = response.data;
-      alert(`Impersonation token generated. In production, this would automatically log you in as the tenant owner.`);
+      const { tenantSlug } = response.data;
+      
+      // Redirect to tenant dashboard with tenant slug
+      // For localhost, use query parameter; for production, use subdomain
+      const hostname = window.location.hostname;
+      const protocol = window.location.protocol;
+      const port = window.location.port ? `:${window.location.port}` : '';
+      
+      if (hostname === 'localhost' || hostname.includes('127.0.0.1') || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
+        // Localhost: redirect with query parameter
+        window.location.href = `${protocol}//${hostname}${port}/dashboard?tenant=${encodeURIComponent(tenantSlug)}`;
+      } else {
+        // Production: redirect to tenant subdomain
+        const parts = hostname.split('.');
+        if (parts.length >= 2) {
+          const rootDomain = parts.slice(-2).join('.');
+          window.location.href = `${protocol}//${tenantSlug}.${rootDomain}${port}/dashboard`;
+        } else {
+          // Fallback to query parameter if can't determine root domain
+          window.location.href = `${protocol}//${hostname}${port}/dashboard?tenant=${encodeURIComponent(tenantSlug)}`;
+        }
+      }
     } catch (error: any) {
-      showError(error, 'Failed to generate impersonation token');
+      showError(error, 'Failed to impersonate tenant');
     }
   };
 
