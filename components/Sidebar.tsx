@@ -237,7 +237,7 @@ export default function Sidebar() {
             </div>
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white">
-                Hostel Management
+                NivaasOne
               </h1>
               {user && (
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
@@ -347,7 +347,7 @@ export default function Sidebar() {
         {/* Footer */}
         <div className="flex-shrink-0 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
           <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            © {new Date().getFullYear()} Hostel Management
+            © {new Date().getFullYear()} NivaasOne
           </div>
         </div>
       </div>
