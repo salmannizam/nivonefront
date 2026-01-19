@@ -160,7 +160,7 @@ export default function ResidentsPage() {
       setAvailableBeds([]);
       loadData();
     } catch (error: any) {
-      showError(error, error.response?.data?.message || t('messages.saveError'));
+      showError(error, error.response?.data?.message || t('common.messages.saveError'));
     }
   };
 
@@ -262,15 +262,15 @@ export default function ResidentsPage() {
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: t('buttons.search'),
+      label: t('common.buttons.search'),
       placeholder: t('forms.placeholders.search'),
       advanced: false,
     },
     status: {
       type: 'select' as const,
-      label: t('labels.status'),
+      label: t('common.labels.status'),
       options: [
-        { label: t('labels.all'), value: '' },
+        { label: t('common.labels.all'), value: '' },
         { label: t('pages.residents.active'), value: 'ACTIVE' },
         { label: t('pages.residents.vacated'), value: 'VACATED' },
       ],
@@ -280,7 +280,7 @@ export default function ResidentsPage() {
       type: 'select' as const,
       label: t('pages.residents.room'),
       options: [
-        { label: t('labels.all'), value: '' },
+        { label: t('common.labels.all'), value: '' },
         ...rooms.map((r) => ({ label: r.roomNumber, value: r._id })),
       ],
       advanced: false,
@@ -289,7 +289,7 @@ export default function ResidentsPage() {
       type: 'select' as const,
       label: t('pages.residents.bed'),
       options: [
-        { label: t('labels.all'), value: '' },
+        { label: t('common.labels.all'), value: '' },
         ...beds.map((b) => ({ label: `${t('pages.residents.bed')} ${b.bedNumber} (${b.roomNumber})`, value: b._id })),
       ],
       advanced: true,
@@ -358,7 +358,7 @@ export default function ResidentsPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('labels.name')}</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.name')}</label>
                 <input
                   type="text"
                   required
@@ -368,7 +368,7 @@ export default function ResidentsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('labels.email')}</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.email')}</label>
                 <input
                   type="email"
                   required
@@ -380,7 +380,7 @@ export default function ResidentsPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('labels.phone')}</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.phone')}</label>
                 <input
                   type="tel"
                   required
@@ -533,7 +533,7 @@ export default function ResidentsPage() {
                 type="submit"
                 className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
               >
-                {editing ? t('buttons.update') : t('buttons.create')}
+                {editing ? t('common.buttons.update') : t('common.buttons.create')}
               </button>
               <button
                 type="button"
@@ -543,7 +543,7 @@ export default function ResidentsPage() {
                 }}
                 className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               >
-                {t('buttons.cancel')}
+                {t('common.buttons.cancel')}
               </button>
             </div>
           </form>
@@ -628,7 +628,7 @@ export default function ResidentsPage() {
                 }}
                 className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               >
-                {t('buttons.cancel')}
+                {t('common.buttons.cancel')}
               </button>
             </div>
           </form>
@@ -641,7 +641,7 @@ export default function ResidentsPage() {
             <thead className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-purple-900/30">
               <tr>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  {t('labels.name')}
+                  {t('common.labels.name')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Contact
@@ -653,10 +653,10 @@ export default function ResidentsPage() {
                   {t('pages.residents.checkInDate')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  {t('labels.status')}
+                  {t('common.labels.status')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  {t('labels.actions')}
+                  {t('common.labels.actions')}
                 </th>
               </tr>
             </thead>
@@ -737,7 +737,7 @@ export default function ResidentsPage() {
                             onClick={() => handleEdit(resident)}
                             className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                           >
-                            {t('buttons.edit')}
+                            {t('common.buttons.edit')}
                           </button>
                         )}
                         {(resident.status === 'ACTIVE' || resident.status === 'NOTICE_GIVEN') && (
@@ -761,7 +761,7 @@ export default function ResidentsPage() {
                             onClick={() => handleDelete(resident._id)}
                             className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-500 dark:to-rose-500 text-white rounded-lg hover:from-red-700 hover:to-rose-700 dark:hover:from-red-600 dark:hover:to-rose-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                           >
-                            {t('buttons.delete')}
+                            {t('common.buttons.delete')}
                           </button>
                         )}
                       </div>

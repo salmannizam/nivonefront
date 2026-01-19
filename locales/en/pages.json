@@ -28,6 +28,7 @@
     "capacity": "Capacity",
     "occupied": "Occupied",
     "available": "Available",
+    "full": "Full",
     "defaultBedRent": "Default Bed Rent (template only)",
     "amenities": "Amenities",
     "tags": "Tags",

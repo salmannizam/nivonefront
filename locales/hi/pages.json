@@ -28,6 +28,7 @@
     "capacity": "क्षमता",
     "occupied": "कब्जा",
     "available": "उपलब्ध",
+    "full": "भरा हुआ",
     "defaultBedRent": "डिफ़ॉल्ट बिस्तर किराया (टेम्प्लेट केवल)",
     "amenities": "सुविधाएं",
     "tags": "टैग",

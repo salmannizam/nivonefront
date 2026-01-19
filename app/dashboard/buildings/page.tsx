@@ -78,7 +78,7 @@ export default function BuildingsPage() {
       setFormData({ name: '', address: '', floors: 1 });
       loadBuildings();
     } catch (error: any) {
-      showError(error, t('messages.saveError'));
+      showError(error, t('common.messages.saveError'));
     }
   };
 
@@ -98,7 +98,7 @@ export default function BuildingsPage() {
       t('pages.buildings.deleteConfirm'),
       building
         ? t('pages.buildings.deleteWarning', { name: building.name })
-        : t('messages.actionCannotUndo')
+        : t('common.messages.actionCannotUndo')
     );
     if (!confirmed) return;
 
@@ -107,7 +107,7 @@ export default function BuildingsPage() {
       showSuccess(t('pages.buildings.deletedSuccess'));
       loadBuildings();
     } catch (error: any) {
-      showError(error, t('messages.deleteError'));
+      showError(error, t('common.messages.deleteError'));
     }
   };
 
@@ -116,7 +116,7 @@ export default function BuildingsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('labels.loading')}</div>
+          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('common.labels.loading')}</div>
         </div>
       </div>
     );
@@ -125,7 +125,7 @@ export default function BuildingsPage() {
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: t('buttons.search'),
+      label: t('common.buttons.search'),
       placeholder: t('forms.placeholders.searchByNameOrAddress'),
       advanced: false,
     },
@@ -213,7 +213,7 @@ export default function BuildingsPage() {
                 type="submit"
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-500 dark:via-indigo-500 dark:to-purple-500 text-white rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 dark:hover:from-blue-600 dark:hover:via-indigo-600 dark:hover:to-purple-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
               >
-                {editing ? `✨ ${t('buttons.update')}` : `✨ ${t('buttons.create')}`}
+                {editing ? `✨ ${t('common.buttons.update')}` : `✨ ${t('common.buttons.create')}`}
               </button>
               <button
                 type="button"
@@ -223,7 +223,7 @@ export default function BuildingsPage() {
                 }}
                 className="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-bold transform hover:scale-105"
               >
-                {t('buttons.cancel')}
+                {t('common.buttons.cancel')}
               </button>
             </div>
           </form>
@@ -236,7 +236,7 @@ export default function BuildingsPage() {
           <thead className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30">
             <tr>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                {t('labels.name')}
+                {t('common.labels.name')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                 {t('pages.buildings.address')}
@@ -248,7 +248,7 @@ export default function BuildingsPage() {
                 {t('pages.buildings.totalRooms')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                {t('labels.actions')}
+                {t('common.labels.actions')}
               </th>
             </tr>
           </thead>
@@ -284,13 +284,13 @@ export default function BuildingsPage() {
                         onClick={() => handleEdit(building)}
                         className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                       >
-                        {t('buttons.edit')}
+                        {t('common.buttons.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(building._id)}
                         className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-500 dark:to-rose-500 text-white rounded-lg hover:from-red-700 hover:to-rose-700 dark:hover:from-red-600 dark:hover:to-rose-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                       >
-                        {t('buttons.delete')}
+                        {t('common.buttons.delete')}
                       </button>
                     </div>
                   </td>

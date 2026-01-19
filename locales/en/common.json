@@ -25,7 +25,9 @@
     "download": "Download",
     "export": "Export",
     "import": "Import",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "hide": "Hide",
+    "show": "Show"
   },
   "labels": {
     "name": "Name",
@@ -53,7 +55,12 @@
     "description": "Description",
     "notes": "Notes",
     "createdAt": "Created At",
-    "updatedAt": "Updated At"
+    "updatedAt": "Updated At",
+    "advancedFilters": "Advanced Filters",
+    "from": "From",
+    "to": "To",
+    "min": "Min",
+    "max": "Max"
   },
   "messages": {
     "success": "Operation completed successfully",

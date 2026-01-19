@@ -96,7 +96,7 @@ export default function RoomsPage() {
       });
       loadData();
     } catch (error: any) {
-      showError(error, error.response?.data?.message || t('messages.saveError'));
+      showError(error, error.response?.data?.message || t('common.messages.saveError'));
     }
   };
 
@@ -121,7 +121,7 @@ export default function RoomsPage() {
       showSuccess(t('pages.rooms.deletedSuccess'));
       loadData();
     } catch (error: any) {
-      showError(error, error.response?.data?.message || t('messages.deleteError'));
+      showError(error, error.response?.data?.message || t('common.messages.deleteError'));
     }
   };
 
@@ -130,7 +130,7 @@ export default function RoomsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('labels.loading')}</div>
+          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('common.labels.loading')}</div>
         </div>
       </div>
     );
@@ -139,7 +139,7 @@ export default function RoomsPage() {
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: t('buttons.search'),
+      label: t('common.buttons.search'),
       placeholder: t('forms.placeholders.search'),
       advanced: false,
     },
@@ -147,7 +147,7 @@ export default function RoomsPage() {
       type: 'select' as const,
       label: t('pages.rooms.building'),
       options: [
-        { label: t('labels.all'), value: '' },
+        { label: t('common.labels.all'), value: '' },
         ...buildings.map((b) => ({ label: b.name, value: b._id })),
       ],
       advanced: false,
@@ -297,7 +297,7 @@ export default function RoomsPage() {
                 type="submit"
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 dark:from-green-500 dark:via-emerald-500 dark:to-teal-500 text-white rounded-xl hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 dark:hover:from-green-600 dark:hover:via-emerald-600 dark:hover:to-teal-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
               >
-                {editing ? `✨ ${t('buttons.update')}` : `✨ ${t('buttons.create')}`}
+                {editing ? `✨ ${t('common.buttons.update')}` : `✨ ${t('common.buttons.create')}`}
               </button>
               <button
                 type="button"
@@ -307,7 +307,7 @@ export default function RoomsPage() {
                 }}
                 className="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-bold transform hover:scale-105"
               >
-                {t('buttons.cancel')}
+                {t('common.buttons.cancel')}
               </button>
             </div>
           </form>
@@ -332,16 +332,16 @@ export default function RoomsPage() {
                 {t('pages.rooms.capacity')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Occupied
+                {t('pages.rooms.occupied')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Default Bed Rent
+                {t('pages.rooms.defaultBedRent')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Status
+                {t('common.labels.status')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                Actions
+                {t('common.labels.actions')}
               </th>
             </tr>
           </thead>
@@ -385,7 +385,7 @@ export default function RoomsPage() {
                           : 'bg-gradient-to-r from-red-400 to-rose-500 text-white shadow-md'
                       }`}
                     >
-                      {room.isAvailable ? `✓ ${t('pages.rooms.available')}` : t('pages.rooms.occupied')}
+                      {room.isAvailable ? `✓ ${t('pages.rooms.available')}` : t('pages.rooms.full')}
                     </span>
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -394,13 +394,13 @@ export default function RoomsPage() {
                         onClick={() => handleEdit(room)}
                         className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                       >
-                          {t('buttons.edit')}
+                          {t('common.buttons.edit')}
                         </button>
                         <button
                           onClick={() => handleDelete(room._id)}
                           className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-500 dark:to-rose-500 text-white rounded-lg hover:from-red-700 hover:to-rose-700 dark:hover:from-red-600 dark:hover:to-rose-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                         >
-                          {t('buttons.delete')}
+                          {t('common.buttons.delete')}
                         </button>
                     </div>
                   </td>

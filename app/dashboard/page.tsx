@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import { logError } from '@/lib/utils';
 import { useFeatures } from '@/lib/feature-context';
+import { useI18n } from '@/lib/i18n-context';
 
 interface DashboardStats {
   residents: { total: number; active: number; vacatedThisMonth?: number; vacatingSoon?: number };
@@ -26,6 +27,7 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
+  const { t } = useI18n();
   const { isFeatureEnabled } = useFeatures();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,7 +61,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">Loading dashboard...</div>
+          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('dashboard.loading')}</div>
         </div>
       </div>
     );
@@ -71,7 +73,7 @@ export default function DashboardPage() {
         <div className="bg-gradient-to-br from-red-50 via-rose-50 to-pink-50 dark:from-red-900/20 dark:via-rose-900/20 dark:to-pink-900/20 border-2 border-red-200 dark:border-red-800 rounded-2xl p-6 sm:p-8 shadow-xl max-w-md w-full">
           <div className="text-red-600 dark:text-red-400 text-xl font-bold mb-2 flex items-center gap-2">
             <span className="text-2xl">⚠️</span>
-            Failed to load dashboard data
+            {t('dashboard.failedToLoad')}
           </div>
           <div className="text-gray-600 dark:text-gray-400 text-sm mb-4">
             {error}
@@ -84,7 +86,7 @@ export default function DashboardPage() {
             }}
             className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-500 dark:via-purple-500 dark:to-pink-500 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 dark:hover:from-indigo-600 dark:hover:via-purple-600 dark:hover:to-pink-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
           >
-            🔄 Retry
+            🔄 {t('dashboard.retry')}
           </button>
         </div>
       </div>
@@ -94,7 +96,7 @@ export default function DashboardPage() {
   if (!stats) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-red-600 dark:text-red-400 text-lg font-bold">Failed to load dashboard data</div>
+        <div className="text-red-600 dark:text-red-400 text-lg font-bold">{t('dashboard.failedToLoad')}</div>
       </div>
     );
   }
@@ -102,13 +104,13 @@ export default function DashboardPage() {
   return (
     <div className="animate-fadeIn">
       <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent animate-slideInLeft">
-        Dashboard
+        {t('dashboard.title')}
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 dark:from-gray-800 dark:via-blue-900/20 dark:to-indigo-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-blue-100 dark:border-blue-900/30 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">Total Residents</h3>
+            <h3 className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">{t('dashboard.totalResidents')}</h3>
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-md">
               <span className="text-lg sm:text-xl">👥</span>
             </div>
@@ -117,14 +119,14 @@ export default function DashboardPage() {
             {stats.residents.total}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 font-medium">
-            {stats.residents.active} active
+            {stats.residents.active} {t('dashboard.active')}
           </p>
         </div>
 
         {stats.beds && isFeatureEnabled('beds') && (
           <div className="bg-gradient-to-br from-white via-purple-50/30 to-pink-50/30 dark:from-gray-800 dark:via-purple-900/20 dark:to-pink-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-purple-100 dark:border-purple-900/30 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" style={{ animationDelay: '50ms' }}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">Beds</h3>
+              <h3 className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">{t('dashboard.beds')}</h3>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-md">
                 <span className="text-lg sm:text-xl">🛏️</span>
               </div>
@@ -133,17 +135,17 @@ export default function DashboardPage() {
               {stats.beds.total}
             </p>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 font-medium">
-              {stats.beds.available} available, {stats.beds.occupied} occupied
+              {stats.beds.available} {t('dashboard.available')}, {stats.beds.occupied} {t('dashboard.occupied')}
             </p>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 font-medium">
-              Occupancy: {stats.beds.occupancyRate}%
+              {t('dashboard.occupancy')}: {stats.beds.occupancyRate}%
             </p>
           </div>
         )}
 
         <div className="bg-gradient-to-br from-white via-green-50/30 to-emerald-50/30 dark:from-gray-800 dark:via-green-900/20 dark:to-emerald-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-green-100 dark:border-green-900/30 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" style={{ animationDelay: '100ms' }}>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">Rooms</h3>
+            <h3 className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">{t('dashboard.rooms')}</h3>
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md">
               <span className="text-lg sm:text-xl">🏠</span>
             </div>
@@ -152,16 +154,16 @@ export default function DashboardPage() {
             {stats.rooms.total}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 font-medium">
-            {stats.rooms.occupied} occupied, {stats.rooms.available} available
+            {stats.rooms.occupied} {t('dashboard.occupied')}, {stats.rooms.available} {t('dashboard.available')}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 font-medium">
-            Occupancy: {stats.rooms.occupancyRate.toFixed(1)}%
+            {t('dashboard.occupancy')}: {stats.rooms.occupancyRate.toFixed(1)}%
           </p>
         </div>
 
         <div className="bg-gradient-to-br from-white via-yellow-50/30 to-amber-50/30 dark:from-gray-800 dark:via-yellow-900/20 dark:to-amber-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-yellow-100 dark:border-yellow-900/30 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" style={{ animationDelay: '150ms' }}>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">Revenue</h3>
+            <h3 className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">{t('dashboard.revenue')}</h3>
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-md">
               <span className="text-lg sm:text-xl">💰</span>
             </div>
@@ -170,7 +172,7 @@ export default function DashboardPage() {
             ₹{stats.payments.revenue.toLocaleString()}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 font-medium">
-            {stats.payments.paid} paid
+            {stats.payments.paid} {t('dashboard.paid')}
           </p>
         </div>
       </div>
@@ -178,7 +180,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div className="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-yellow-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-orange-200 dark:border-orange-800 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" onClick={() => window.location.href = '/dashboard/payments?status=DUE&dueToday=true'}>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-orange-700 dark:text-orange-300 text-xs font-semibold uppercase tracking-wide">Rent Due Today</h3>
+            <h3 className="text-orange-700 dark:text-orange-300 text-xs font-semibold uppercase tracking-wide">{t('dashboard.rentDueToday')}</h3>
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shadow-md">
               <span className="text-lg sm:text-xl">⏰</span>
             </div>
@@ -187,13 +189,13 @@ export default function DashboardPage() {
             {stats.payments.dueToday || 0}
           </p>
           <p className="text-xs text-orange-600 dark:text-orange-400 mt-1 font-medium">
-            Click to view details →
+            {t('dashboard.clickToViewDetails')}
           </p>
         </div>
 
         <div className="bg-gradient-to-br from-red-50 via-rose-50 to-pink-50 dark:from-red-900/20 dark:via-rose-900/20 dark:to-pink-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-red-200 dark:border-red-800 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" style={{ animationDelay: '50ms' }} onClick={() => window.location.href = '/dashboard/payments?status=OVERDUE'}>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-red-700 dark:text-red-300 text-xs font-semibold uppercase tracking-wide">Overdue Payments</h3>
+            <h3 className="text-red-700 dark:text-red-300 text-xs font-semibold uppercase tracking-wide">{t('dashboard.overduePayments')}</h3>
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center shadow-md">
               <span className="text-lg sm:text-xl">🚨</span>
             </div>
@@ -202,14 +204,14 @@ export default function DashboardPage() {
             {stats.payments.overdue || 0}
           </p>
           <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">
-            Click to view details →
+            {t('dashboard.clickToViewDetails')}
           </p>
         </div>
 
         {stats.securityDeposits && isFeatureEnabled('securityDeposits') && (
           <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-blue-200 dark:border-blue-800 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" style={{ animationDelay: '100ms' }} onClick={() => window.location.href = '/dashboard/payments?section=deposits'}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-blue-700 dark:text-blue-300 text-xs font-semibold uppercase tracking-wide">Security Deposits</h3>
+              <h3 className="text-blue-700 dark:text-blue-300 text-xs font-semibold uppercase tracking-wide">{t('dashboard.securityDeposits')}</h3>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-md">
                 <span className="text-lg sm:text-xl">🔒</span>
               </div>
@@ -218,7 +220,7 @@ export default function DashboardPage() {
               ₹{stats.securityDeposits.totalHeld?.toLocaleString() || '0'}
             </p>
             <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 font-medium">
-              {stats.securityDeposits.count} active deposits
+              {stats.securityDeposits.count} {t('dashboard.activeDeposits')}
             </p>
           </div>
         )}
@@ -226,7 +228,7 @@ export default function DashboardPage() {
         {stats.beds && stats.beds.maintenance > 0 && isFeatureEnabled('beds') && (
           <div className="bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 dark:from-yellow-900/20 dark:via-amber-900/20 dark:to-orange-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-yellow-200 dark:border-yellow-800 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" style={{ animationDelay: '150ms' }} onClick={() => window.location.href = '/dashboard/beds?status=MAINTENANCE'}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-yellow-700 dark:text-yellow-300 text-xs font-semibold uppercase tracking-wide">Beds Under Maintenance</h3>
+              <h3 className="text-yellow-700 dark:text-yellow-300 text-xs font-semibold uppercase tracking-wide">{t('dashboard.bedsUnderMaintenance')}</h3>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-md">
                 <span className="text-lg sm:text-xl">🔧</span>
               </div>
@@ -235,7 +237,7 @@ export default function DashboardPage() {
               {stats.beds.maintenance}
             </p>
             <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1 font-medium">
-              Click to view details →
+              {t('dashboard.clickToViewDetails')}
             </p>
           </div>
         )}
@@ -244,7 +246,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div className="bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 dark:from-yellow-900/20 dark:via-amber-900/20 dark:to-orange-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-yellow-200 dark:border-yellow-800 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-yellow-700 dark:text-yellow-300 text-xs font-semibold uppercase tracking-wide">Pending Payments</h3>
+            <h3 className="text-yellow-700 dark:text-yellow-300 text-xs font-semibold uppercase tracking-wide">{t('dashboard.pendingPayments')}</h3>
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-md">
               <span className="text-lg sm:text-xl">⏳</span>
             </div>
@@ -260,7 +262,7 @@ export default function DashboardPage() {
         {stats.residents.vacatedThisMonth !== undefined && (
           <div className="bg-gradient-to-br from-gray-50 via-slate-50 to-zinc-50 dark:from-gray-800 dark:via-slate-800 dark:to-zinc-800 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" style={{ animationDelay: '50ms' }} onClick={() => window.location.href = '/dashboard/residents?status=VACATED'}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-gray-700 dark:text-gray-300 text-xs font-semibold uppercase tracking-wide">Vacated This Month</h3>
+              <h3 className="text-gray-700 dark:text-gray-300 text-xs font-semibold uppercase tracking-wide">{t('dashboard.vacatedThisMonth')}</h3>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-gray-400 to-slate-500 flex items-center justify-center shadow-md">
                 <span className="text-lg sm:text-xl">🚪</span>
               </div>
@@ -269,7 +271,7 @@ export default function DashboardPage() {
               {stats.residents.vacatedThisMonth}
             </p>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 font-medium">
-              Click to view details →
+              {t('dashboard.clickToViewDetails')}
             </p>
           </div>
         )}
@@ -277,7 +279,7 @@ export default function DashboardPage() {
         {stats.staff && isFeatureEnabled('staff') && (
           <div className="bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 dark:from-teal-900/20 dark:via-cyan-900/20 dark:to-blue-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-teal-200 dark:border-teal-800 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" style={{ animationDelay: '100ms' }}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-teal-700 dark:text-teal-300 text-xs font-semibold uppercase tracking-wide">Staff</h3>
+              <h3 className="text-teal-700 dark:text-teal-300 text-xs font-semibold uppercase tracking-wide">{t('dashboard.staff')}</h3>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-md">
                 <span className="text-lg sm:text-xl">👔</span>
               </div>
@@ -286,7 +288,7 @@ export default function DashboardPage() {
               {stats.staff.total}
             </p>
             <p className="text-xs text-teal-600 dark:text-teal-400 mt-1 font-medium">
-              {stats.staff.active} active
+              {stats.staff.active} {t('dashboard.active')}
             </p>
           </div>
         )}
@@ -294,7 +296,7 @@ export default function DashboardPage() {
         {stats.assets && isFeatureEnabled('assets') && (
           <div className="bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 dark:from-violet-900/20 dark:via-purple-900/20 dark:to-fuchsia-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-violet-200 dark:border-violet-800 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" style={{ animationDelay: '150ms' }}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-violet-700 dark:text-violet-300 text-xs font-semibold uppercase tracking-wide">Assets</h3>
+              <h3 className="text-violet-700 dark:text-violet-300 text-xs font-semibold uppercase tracking-wide">{t('dashboard.assets')}</h3>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-md">
                 <span className="text-lg sm:text-xl">📦</span>
               </div>
@@ -303,7 +305,7 @@ export default function DashboardPage() {
               {stats.assets.total}
             </p>
             <p className="text-xs text-violet-600 dark:text-violet-400 mt-1 font-medium">
-              {stats.assets.maintenanceDue} maintenance due
+              {stats.assets.maintenanceDue} {t('dashboard.maintenanceDue')}
             </p>
           </div>
         )}
@@ -318,7 +320,7 @@ export default function DashboardPage() {
           <div className="mb-6 sm:mb-8 animate-slideInUp">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 dark:from-red-400 dark:via-orange-400 dark:to-yellow-400 bg-clip-text text-transparent flex items-center gap-2">
               <span className="text-2xl sm:text-3xl animate-pulse">⚠️</span>
-              Attention Needed
+              {t('dashboard.attentionNeeded')}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {stats.attentionNeeded.overdueRent > 0 && (
@@ -326,11 +328,11 @@ export default function DashboardPage() {
                   className="bg-gradient-to-br from-red-50 via-rose-50 to-pink-50 dark:from-red-900/20 dark:via-rose-900/20 dark:to-pink-900/20 border-2 border-red-200 dark:border-red-800 p-3 sm:p-4 rounded-xl shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp"
                   onClick={() => window.location.href = '/dashboard/payments?status=OVERDUE'}
                 >
-                  <h3 className="text-xs font-bold text-red-800 dark:text-red-300 mb-1.5">Overdue Rent</h3>
+                  <h3 className="text-xs font-bold text-red-800 dark:text-red-300 mb-1.5">{t('dashboard.overdueRent')}</h3>
                   <p className="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">
                     {stats.attentionNeeded.overdueRent}
                   </p>
-                  <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">Click to view →</p>
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">{t('dashboard.clickToView')}</p>
                 </div>
               )}
               {stats.attentionNeeded.complaintsPending > 0 && isFeatureEnabled('complaints') && (
@@ -339,16 +341,16 @@ export default function DashboardPage() {
                   style={{ animationDelay: '50ms' }}
                   onClick={() => window.location.href = '/dashboard/complaints?status=open'}
                 >
-                  <h3 className="text-xs font-bold text-orange-800 dark:text-orange-300 mb-1.5">Pending Complaints</h3>
+                  <h3 className="text-xs font-bold text-orange-800 dark:text-orange-300 mb-1.5">{t('dashboard.pendingComplaints')}</h3>
                   <p className="text-2xl sm:text-3xl font-bold text-orange-600 dark:text-orange-400">
                     {stats.attentionNeeded.complaintsPending}
                   </p>
                   {stats.attentionNeeded.complaintsPending3Days > 0 && (
                     <p className="text-xs text-orange-600 dark:text-orange-400 mt-1 font-medium">
-                      {stats.attentionNeeded.complaintsPending3Days} pending &gt; 3 days
+                      {stats.attentionNeeded.complaintsPending3Days} {t('dashboard.pendingMoreThan3Days')}
                     </p>
                   )}
-                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5 font-medium">Click to view →</p>
+                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5 font-medium">{t('dashboard.clickToView')}</p>
                 </div>
               )}
               {stats.attentionNeeded.bedsUnderMaintenance > 0 && isFeatureEnabled('beds') && (
@@ -357,11 +359,11 @@ export default function DashboardPage() {
                   style={{ animationDelay: '100ms' }}
                   onClick={() => window.location.href = '/dashboard/beds?status=MAINTENANCE'}
                 >
-                  <h3 className="text-xs font-bold text-yellow-800 dark:text-yellow-300 mb-1.5">Beds Under Maintenance</h3>
+                  <h3 className="text-xs font-bold text-yellow-800 dark:text-yellow-300 mb-1.5">{t('dashboard.bedsUnderMaintenance')}</h3>
                   <p className="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400">
                     {stats.attentionNeeded.bedsUnderMaintenance}
                   </p>
-                  <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1 font-medium">Click to view →</p>
+                  <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1 font-medium">{t('dashboard.clickToView')}</p>
                 </div>
               )}
               {stats.attentionNeeded.residentsVacatingSoon > 0 && (
@@ -370,12 +372,12 @@ export default function DashboardPage() {
                   style={{ animationDelay: '150ms' }}
                   onClick={() => window.location.href = '/dashboard/residents?status=NOTICE_GIVEN'}
                 >
-                  <h3 className="text-xs font-bold text-blue-800 dark:text-blue-300 mb-1.5">Residents Vacating Soon</h3>
+                  <h3 className="text-xs font-bold text-blue-800 dark:text-blue-300 mb-1.5">{t('dashboard.residentsVacatingSoon')}</h3>
                   <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">
                     {stats.attentionNeeded.residentsVacatingSoon}
                   </p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 font-medium">Next 30 days</p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5 font-medium">Click to view →</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 font-medium">{t('dashboard.next30Days')}</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5 font-medium">{t('dashboard.clickToView')}</p>
                 </div>
               )}
             </div>
@@ -388,7 +390,7 @@ export default function DashboardPage() {
           <div className="bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 dark:from-cyan-900/20 dark:via-blue-900/20 dark:to-indigo-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-cyan-200 dark:border-cyan-800 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-bold text-cyan-800 dark:text-cyan-300">
-                Today's Visitors
+                {t('dashboard.todaysVisitors')}
               </h3>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-md">
                 <span className="text-lg sm:text-xl">👋</span>
@@ -404,7 +406,7 @@ export default function DashboardPage() {
           <div className="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-yellow-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-orange-200 dark:border-orange-800 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" style={{ animationDelay: '50ms' }}>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-bold text-orange-800 dark:text-orange-300">
-                Complaints
+                {t('dashboard.complaints')}
               </h3>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shadow-md">
                 <span className="text-lg sm:text-xl">📝</span>
@@ -414,7 +416,7 @@ export default function DashboardPage() {
               {stats.complaints.total}
             </p>
             <p className="text-xs text-orange-600 dark:text-orange-400 mt-1 font-medium">
-              {stats.complaints.open} open
+              {stats.complaints.open} {t('dashboard.open')}
             </p>
           </div>
         )}
@@ -423,7 +425,7 @@ export default function DashboardPage() {
           <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-teal-900/20 p-3 sm:p-4 rounded-xl shadow-lg border-2 border-green-200 dark:border-green-800 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp" style={{ animationDelay: '100ms' }}>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-bold text-green-800 dark:text-green-300">
-                Active Gate Passes
+                {t('dashboard.activeGatePasses')}
               </h3>
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md">
                 <span className="text-lg sm:text-xl">🚪</span>
@@ -434,7 +436,7 @@ export default function DashboardPage() {
             </p>
             {stats.gatePasses.overdue > 0 && (
               <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-bold animate-pulse">
-                ⚠️ {stats.gatePasses.overdue} overdue
+                ⚠️ {stats.gatePasses.overdue} {t('dashboard.overdue')}
               </p>
             )}
           </div>

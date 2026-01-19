@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useI18n } from '@/lib/i18n-context';
 
 interface FilterOption {
   label: string;
@@ -35,6 +36,7 @@ export default function FilterPanel({
   onReset,
   showAdvanced = false,
 }: FilterPanelProps) {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [internalFilterValues, setInternalFilterValues] = useState<Record<string, any>>({});
@@ -85,7 +87,7 @@ export default function FilterPanel({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
-            <span>Filters</span>
+            <span>{t('common.buttons.filter')}</span>
             {activeFilterCount > 0 && (
               <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
                 {activeFilterCount}
@@ -97,7 +99,7 @@ export default function FilterPanel({
               onClick={handleReset}
               className="px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium"
             >
-              Clear All
+              {t('common.buttons.clear')}
             </button>
           )}
         </div>
@@ -106,7 +108,7 @@ export default function FilterPanel({
             onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
             className="px-4 py-2 text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors font-medium"
           >
-            {isAdvancedOpen ? 'Hide' : 'Show'} Advanced Filters
+            {isAdvancedOpen ? t('common.buttons.hide') : t('common.buttons.show')} {t('common.labels.advancedFilters')}
           </button>
         )}
       </div>
@@ -129,7 +131,7 @@ export default function FilterPanel({
                     onChange={(e) => handleFilterChange(key, e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   >
-                    <option value="">All</option>
+                    <option value="">{t('common.labels.all')}</option>
                     {filter.options?.map((opt) => (
                       <option key={opt.value} value={opt.value}>
                         {opt.label}
@@ -187,7 +189,7 @@ export default function FilterPanel({
                       onChange={(e) =>
                         handleFilterChange(key, { ...dateRange, from: e.target.value })
                       }
-                      placeholder="From"
+                      placeholder={t('common.labels.from')}
                       className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                     />
                     <input
@@ -196,7 +198,7 @@ export default function FilterPanel({
                       onChange={(e) =>
                         handleFilterChange(key, { ...dateRange, to: e.target.value })
                       }
-                      placeholder="To"
+                      placeholder={t('common.labels.to')}
                       className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -238,7 +240,7 @@ export default function FilterPanel({
                           min: e.target.value ? Number(e.target.value) : undefined,
                         })
                       }
-                      placeholder="Min"
+                      placeholder={t('common.labels.min')}
                       className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                     />
                     <input
@@ -250,7 +252,7 @@ export default function FilterPanel({
                           max: e.target.value ? Number(e.target.value) : undefined,
                         })
                       }
-                      placeholder="Max"
+                      placeholder={t('common.labels.max')}
                       className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
