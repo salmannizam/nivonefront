@@ -60,7 +60,8 @@
     "from": "From",
     "to": "To",
     "min": "Min",
-    "max": "Max"
+    "max": "Max",
+    "dateRange": "Date Range"
   },
   "messages": {
     "success": "Operation completed successfully",

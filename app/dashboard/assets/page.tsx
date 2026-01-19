@@ -198,12 +198,12 @@ export default function AssetsPage() {
       label: t('pages.assets.category'),
       options: [
         { label: t('pages.assets.allCategories'), value: '' },
-        { label: 'AC', value: 'AC' },
-        { label: 'Geyser', value: 'GEYSER' },
-        { label: 'RO', value: 'RO' },
-        { label: 'Fan', value: 'FAN' },
-        { label: 'Light', value: 'LIGHT' },
-        { label: 'Other', value: 'OTHER' },
+        { label: t('pages.assets.ac'), value: 'AC' },
+        { label: t('pages.assets.geyser'), value: 'GEYSER' },
+        { label: t('pages.assets.ro'), value: 'RO' },
+        { label: t('pages.assets.fan'), value: 'FAN' },
+        { label: t('pages.assets.light'), value: 'LIGHT' },
+        { label: t('pages.assets.other'), value: 'OTHER' },
       ],
       advanced: false,
     },
@@ -294,7 +294,7 @@ export default function AssetsPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="AC, Geyser, RO, etc."
+                  placeholder={t('pages.assets.namePlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -304,7 +304,7 @@ export default function AssetsPage() {
                   type="text"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  placeholder="Electrical, Plumbing, HVAC, etc."
+                  placeholder={t('pages.assets.categoryPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>

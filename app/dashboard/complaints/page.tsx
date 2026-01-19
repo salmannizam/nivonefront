@@ -139,7 +139,7 @@ export default function ComplaintsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">Loading complaints...</div>
+          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('common.labels.loading')}</div>
         </div>
       </div>
     );
@@ -148,46 +148,46 @@ export default function ComplaintsPage() {
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: 'Search',
-      placeholder: 'Search by title or description',
+      label: t('common.buttons.search'),
+      placeholder: t('pages.complaints.searchPlaceholder'),
       advanced: false,
     },
     status: {
       type: 'select' as const,
-      label: 'Status',
+      label: t('common.labels.status'),
       options: [
-        { label: 'All', value: '' },
-        { label: 'Open', value: 'open' },
-        { label: 'In Progress', value: 'in_progress' },
-        { label: 'Resolved', value: 'resolved' },
-        { label: 'Closed', value: 'closed' },
+        { label: t('common.labels.all'), value: '' },
+        { label: t('pages.complaints.open'), value: 'open' },
+        { label: t('pages.complaints.inProgress'), value: 'in_progress' },
+        { label: t('pages.complaints.resolved'), value: 'resolved' },
+        { label: t('pages.complaints.closed'), value: 'closed' },
       ],
       advanced: false,
     },
     priority: {
       type: 'select' as const,
-      label: 'Priority',
+      label: t('pages.complaints.priority'),
       options: [
-        { label: 'All', value: '' },
-        { label: 'Low', value: 'low' },
-        { label: 'Medium', value: 'medium' },
-        { label: 'High', value: 'high' },
-        { label: 'Urgent', value: 'urgent' },
+        { label: t('common.labels.all'), value: '' },
+        { label: t('pages.complaints.low'), value: 'low' },
+        { label: t('pages.complaints.medium'), value: 'medium' },
+        { label: t('pages.complaints.high'), value: 'high' },
+        { label: t('pages.complaints.urgent'), value: 'urgent' },
       ],
       advanced: false,
     },
     residentId: {
       type: 'select' as const,
-      label: 'Resident',
+      label: t('pages.complaints.resident'),
       options: [
-        { label: 'All Residents', value: '' },
+        { label: t('pages.complaints.allResidents'), value: '' },
         ...residents.map((r) => ({ label: r.name, value: r._id })),
       ],
       advanced: true,
     },
     dateRange: {
       type: 'dateRange' as const,
-      label: 'Date Range',
+      label: t('common.labels.dateRange'),
       advanced: true,
     },
   };
@@ -235,7 +235,7 @@ export default function ComplaintsPage() {
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Resident</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.complaints.resident')}</label>
               <select
                 required
                 value={formData.residentId}
@@ -251,7 +251,7 @@ export default function ComplaintsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Title</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.complaints.titleLabel')}</label>
               <input
                 type="text"
                 required
@@ -261,7 +261,7 @@ export default function ComplaintsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Description</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.complaints.description')}</label>
               <textarea
                 required
                 value={formData.description}
@@ -272,60 +272,60 @@ export default function ComplaintsPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Category</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.complaints.category')}</label>
                 <select
                   required
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="maintenance">Maintenance</option>
-                  <option value="cleaning">Cleaning</option>
-                  <option value="electrical">Electrical</option>
-                  <option value="plumbing">Plumbing</option>
-                  <option value="other">Other</option>
+                  <option value="maintenance">{t('pages.complaints.maintenance')}</option>
+                  <option value="cleaning">{t('pages.complaints.cleaning')}</option>
+                  <option value="electrical">{t('pages.complaints.electrical')}</option>
+                  <option value="plumbing">{t('pages.complaints.plumbing')}</option>
+                  <option value="other">{t('pages.complaints.other')}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Priority</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.complaints.priority')}</label>
                 <select
                   required
                   value={formData.priority}
                   onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
+                  <option value="low">{t('pages.complaints.low')}</option>
+                  <option value="medium">{t('pages.complaints.medium')}</option>
+                  <option value="high">{t('pages.complaints.high')}</option>
                   <option value="urgent">Urgent</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Status</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.status')}</label>
                 <select
                   required
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="open">Open</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="resolved">Resolved</option>
-                  <option value="closed">Closed</option>
+                  <option value="open">{t('pages.complaints.open')}</option>
+                  <option value="in_progress">{t('pages.complaints.inProgress')}</option>
+                  <option value="resolved">{t('pages.complaints.resolved')}</option>
+                  <option value="closed">{t('pages.complaints.closed')}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Notes</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.notes')}</label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                placeholder="Add any additional notes about this complaint..."
+                placeholder={t('pages.complaints.notesPlaceholder')}
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Internal notes visible only to staff members
+                {t('pages.complaints.notesHelp')}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
@@ -333,7 +333,7 @@ export default function ComplaintsPage() {
                 type="submit"
                 className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
               >
-                {editing ? 'Update' : 'Create'}
+                {editing ? t('common.buttons.update') : t('common.buttons.create')}
               </button>
               <button
                 type="button"
@@ -343,7 +343,7 @@ export default function ComplaintsPage() {
                 }}
                 className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               >
-                Cancel
+                {t('common.buttons.cancel')}
               </button>
             </div>
           </form>
@@ -356,25 +356,25 @@ export default function ComplaintsPage() {
           <thead className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-900/30 dark:via-amber-900/30 dark:to-yellow-900/30">
             <tr>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-orange-700 dark:text-orange-300 uppercase tracking-wider">
-                Resident
+                {t('pages.complaints.resident')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-orange-700 dark:text-orange-300 uppercase tracking-wider">
-                Title
+                {t('pages.complaints.titleLabel')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-orange-700 dark:text-orange-300 uppercase tracking-wider">
-                Category
+                {t('pages.complaints.category')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-orange-700 dark:text-orange-300 uppercase tracking-wider">
-                Priority
+                {t('pages.complaints.priority')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-orange-700 dark:text-orange-300 uppercase tracking-wider">
-                Status
+                {t('common.labels.status')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-orange-700 dark:text-orange-300 uppercase tracking-wider">
-                Created
+                {t('pages.complaints.created')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-orange-700 dark:text-orange-300 uppercase tracking-wider">
-                Actions
+                {t('common.labels.actions')}
               </th>
             </tr>
           </thead>

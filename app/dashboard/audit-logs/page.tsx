@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError, formatDateTime } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n-context';
+import { logError, formatDateTime, showError } from '@/lib/utils';
 
 interface AuditLog {
   _id: string;
@@ -23,6 +24,7 @@ interface AuditLog {
 }
 
 export default function AuditLogsPage() {
+  const { t } = useI18n();
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Record<string, any>>({});
@@ -47,10 +49,10 @@ export default function AuditLogsPage() {
       setAuditLogs(response.data);
     } catch (error: any) {
       if (error.response?.status === 403) {
-        alert('Access denied. Only OWNER role can view audit logs.');
+        showError(null, t('pages.auditLogs.accessDenied'));
       } else {
         logError(error, 'Failed to load audit logs');
-        alert('Failed to load audit logs');
+        showError(error, t('pages.auditLogs.loadError'));
       }
     } finally {
       setLoading(false);
@@ -60,26 +62,26 @@ export default function AuditLogsPage() {
   const filterConfig = {
     action: {
       type: 'text' as const,
-      label: 'Action',
-      placeholder: 'Filter by action type',
+      label: t('pages.auditLogs.action'),
+      placeholder: t('pages.auditLogs.actionPlaceholder'),
       advanced: false,
     },
     entityType: {
       type: 'select' as const,
-      label: 'Entity Type',
+      label: t('pages.auditLogs.entityType'),
       options: [
-        { label: 'All', value: '' },
-        { label: 'Resident', value: 'Resident' },
-        { label: 'Payment', value: 'Payment' },
-        { label: 'SecurityDeposit', value: 'SecurityDeposit' },
-        { label: 'User', value: 'User' },
-        { label: 'RentPayment', value: 'RentPayment' },
+        { label: t('common.labels.all'), value: '' },
+        { label: t('pages.auditLogs.resident'), value: 'Resident' },
+        { label: t('pages.auditLogs.payment'), value: 'Payment' },
+        { label: t('pages.auditLogs.securityDeposit'), value: 'SecurityDeposit' },
+        { label: t('pages.auditLogs.user'), value: 'User' },
+        { label: t('pages.auditLogs.rentPayment'), value: 'RentPayment' },
       ],
       advanced: false,
     },
     dateRange: {
       type: 'dateRange' as const,
-      label: 'Date Range',
+      label: t('common.labels.dateRange'),
       advanced: true,
     },
   };
@@ -100,7 +102,7 @@ export default function AuditLogsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-600 dark:text-gray-400">Loading audit logs...</div>
+        <div className="text-gray-600 dark:text-gray-400">{t('common.labels.loading')}</div>
       </div>
     );
   }
@@ -109,9 +111,9 @@ export default function AuditLogsPage() {
     <FeatureGuard feature="auditLog">
       <div>
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Audit Logs</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{t('pages.auditLogs.title')}</h1>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-          Track all critical actions performed in the system. Only visible to OWNER role.
+          {t('pages.auditLogs.description')}
         </p>
       </div>
 
@@ -129,19 +131,19 @@ export default function AuditLogsPage() {
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Timestamp
+                  {t('pages.auditLogs.timestamp')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Action
+                  {t('pages.auditLogs.action')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Performed By
+                  {t('pages.auditLogs.performedBy')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Entity
+                  {t('pages.auditLogs.entity')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Description
+                  {t('pages.auditLogs.description')}
                 </th>
               </tr>
             </thead>
@@ -149,7 +151,7 @@ export default function AuditLogsPage() {
               {auditLogs.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                    No audit logs found
+                    {t('pages.auditLogs.noLogs')}
                   </td>
                 </tr>
               ) : (
@@ -164,7 +166,7 @@ export default function AuditLogsPage() {
                       </span>
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {log.performedBy?.name || 'Unknown'}
+                      {log.performedBy?.name || t('pages.auditLogs.unknown')}
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         {log.performedBy?.email}
                       </div>
@@ -173,7 +175,7 @@ export default function AuditLogsPage() {
                       {log.entityType || '-'}
                       {log.entityId && (
                         <div className="text-xs text-gray-500 dark:text-gray-400">
-                          ID: {log.entityId.substring(0, 8)}...
+                          {t('pages.auditLogs.id')}: {log.entityId.substring(0, 8)}...
                         </div>
                       )}
                     </td>

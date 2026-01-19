@@ -5,7 +5,7 @@ import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
 import { useI18n } from '@/lib/i18n-context';
-import { logError, formatDate, showSuccess, showError } from '@/lib/utils';
+import { logError, formatDate, showSuccess, showError, confirmAction } from '@/lib/utils';
 
 interface Notice {
   _id: string;
@@ -88,7 +88,7 @@ export default function NoticesPage() {
       });
       loadNotices();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to save notice');
+      showError(error, error.response?.data?.message || t('pages.notices.saveError'));
     }
   };
 
@@ -112,19 +112,24 @@ export default function NoticesPage() {
 
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this notice?')) return;
+    const confirmed = await confirmAction(
+      t('pages.notices.deleteConfirm'),
+      t('common.messages.actionCannotUndo')
+    );
+    if (!confirmed) return;
     try {
       await api.delete(`/notices/${id}`);
+      showSuccess(t('pages.notices.deletedSuccess'));
       loadNotices();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to delete notice');
+      showError(error, error.response?.data?.message || t('pages.notices.deleteError'));
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-600 dark:text-gray-400">Loading notices...</div>
+        <div className="text-gray-600 dark:text-gray-400">{t('common.labels.loading')}</div>
       </div>
     );
   }
@@ -132,49 +137,49 @@ export default function NoticesPage() {
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: 'Search',
-      placeholder: 'Search by title or content',
+      label: t('common.buttons.search'),
+      placeholder: t('pages.notices.searchPlaceholder'),
       advanced: false,
     },
     status: {
       type: 'select' as const,
-      label: 'Status',
+      label: t('common.labels.status'),
       options: [
-        { label: 'All', value: '' },
-        { label: 'Draft', value: 'DRAFT' },
-        { label: 'Published', value: 'PUBLISHED' },
-        { label: 'Expired', value: 'EXPIRED' },
-        { label: 'Inactive', value: 'INACTIVE' },
-        { label: 'Archived', value: 'ARCHIVED' },
+        { label: t('common.labels.all'), value: '' },
+        { label: t('pages.notices.draft'), value: 'DRAFT' },
+        { label: t('pages.notices.published'), value: 'PUBLISHED' },
+        { label: t('pages.notices.expired'), value: 'EXPIRED' },
+        { label: t('pages.notices.inactive'), value: 'INACTIVE' },
+        { label: t('pages.notices.archived'), value: 'ARCHIVED' },
       ],
       advanced: false,
     },
     category: {
       type: 'select' as const,
-      label: 'Category',
+      label: t('pages.notices.category'),
       options: [
-        { label: 'All Categories', value: '' },
-        { label: 'General', value: 'general' },
-        { label: 'Maintenance', value: 'maintenance' },
-        { label: 'Event', value: 'event' },
-        { label: 'Important', value: 'important' },
+        { label: t('pages.notices.allCategories'), value: '' },
+        { label: t('pages.notices.general'), value: 'general' },
+        { label: t('pages.notices.maintenance'), value: 'maintenance' },
+        { label: t('pages.notices.event'), value: 'event' },
+        { label: t('pages.notices.important'), value: 'important' },
       ],
       advanced: true,
     },
     priority: {
       type: 'select' as const,
-      label: 'Priority',
+      label: t('pages.notices.priority'),
       options: [
-        { label: 'All', value: '' },
-        { label: 'Normal', value: 'normal' },
-        { label: 'High', value: 'high' },
-        { label: 'Urgent', value: 'urgent' },
+        { label: t('common.labels.all'), value: '' },
+        { label: t('pages.notices.normal'), value: 'normal' },
+        { label: t('pages.notices.high'), value: 'high' },
+        { label: t('pages.notices.urgent'), value: 'urgent' },
       ],
       advanced: true,
     },
     dateRange: {
       type: 'dateRange' as const,
-      label: 'Publish Date Range',
+      label: t('pages.notices.publishDateRange'),
       advanced: true,
     },
   };
@@ -185,7 +190,7 @@ export default function NoticesPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 animate-slideInDown">
           <div>
             <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-rose-600 via-pink-600 to-fuchsia-600 dark:from-rose-400 dark:via-pink-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
-              📢 Notices
+              📢 {t('pages.notices.title')}
             </h1>
             <p className="text-rose-600 dark:text-rose-400 mt-1 font-medium">{t('pages.notices.description')}</p>
           </div>
@@ -224,7 +229,7 @@ export default function NoticesPage() {
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Title</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.notices.title')}</label>
               <input
                 type="text"
                 required
@@ -234,7 +239,7 @@ export default function NoticesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Content</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.notices.content')}</label>
               <textarea
                 required
                 value={formData.content}
@@ -245,50 +250,50 @@ export default function NoticesPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Category</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.notices.category')}</label>
                 <select
                   required
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="general">General</option>
-                  <option value="maintenance">Maintenance</option>
-                  <option value="payment">Payment</option>
-                  <option value="event">Event</option>
-                  <option value="rule">Rule</option>
+                  <option value="general">{t('pages.notices.general')}</option>
+                  <option value="maintenance">{t('pages.notices.maintenance')}</option>
+                  <option value="payment">{t('pages.notices.payment')}</option>
+                  <option value="event">{t('pages.notices.event')}</option>
+                  <option value="rule">{t('pages.notices.rule')}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Priority</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.notices.priority')}</label>
                 <select
                   required
                   value={formData.priority}
                   onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="normal">Normal</option>
-                  <option value="important">Important</option>
-                  <option value="urgent">Urgent</option>
+                  <option value="normal">{t('pages.notices.normal')}</option>
+                  <option value="important">{t('pages.notices.important')}</option>
+                  <option value="urgent">{t('pages.notices.urgent')}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Status</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.status')}</label>
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="DRAFT">Draft</option>
-                  <option value="PUBLISHED">Published</option>
-                  <option value="INACTIVE">Inactive</option>
-                  <option value="ARCHIVED">Archived</option>
+                  <option value="DRAFT">{t('pages.notices.draft')}</option>
+                  <option value="PUBLISHED">{t('pages.notices.published')}</option>
+                  <option value="INACTIVE">{t('pages.notices.inactive')}</option>
+                  <option value="ARCHIVED">{t('pages.notices.archived')}</option>
                 </select>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Schedule Start Date (Auto-publish)</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.notices.scheduleStart')} ({t('pages.notices.autoPublish')})</label>
                 <input
                   type="date"
                   value={formData.scheduleStartDate}
@@ -301,7 +306,7 @@ export default function NoticesPage() {
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Expiry Date (Auto-expire)</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.notices.expiryDate')} ({t('pages.notices.autoExpire')})</label>
                 <input
                   type="date"
                   value={formData.expiryDate}
@@ -341,25 +346,25 @@ export default function NoticesPage() {
           <thead className="bg-gradient-to-r from-rose-50 via-pink-50 to-fuchsia-50 dark:from-rose-900/30 dark:via-pink-900/30 dark:to-fuchsia-900/30">
             <tr>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">
-                Title
+                {t('pages.notices.titleLabel')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">
-                Category
+                {t('pages.notices.category')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">
-                Priority
+                {t('pages.notices.priority')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">
-                Schedule Start
+                {t('pages.notices.scheduleStart')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">
-                Expiry Date
+                {t('pages.notices.expiryDate')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">
-                Status
+                {t('common.labels.status')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">
-                Actions
+                {t('common.labels.actions')}
               </th>
             </tr>
           </thead>
