@@ -38,6 +38,7 @@ const FEATURE_DISPLAY_NAMES: Record<string, { name: string; description: string;
   customTags: { name: 'Custom Tags', description: 'Add custom tags to residents and payments', category: 'advanced' },
   bulkActions: { name: 'Bulk Actions', description: 'Perform bulk operations on multiple records', category: 'advanced' },
   proration: { name: 'Proration', description: 'Calculate prorated rent for partial months', category: 'advanced' },
+  residentPortal: { name: 'Resident Portal', description: 'Allow residents to access their own data via mobile OTP login', category: 'operations' },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {

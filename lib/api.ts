@@ -38,6 +38,11 @@ api.interceptors.request.use(
       return config;
     }
 
+    // Skip feature check for resident portal routes (separate auth system)
+    if (url.includes('/resident-auth/') || url.includes('/resident-portal/')) {
+      return config;
+    }
+
     // Skip feature check for dashboard endpoint - it's accessible to all authenticated tenants
     if (url.includes('/reports/dashboard')) {
       return config;
@@ -181,7 +186,11 @@ api.interceptors.response.use(
 
     // Don't handle login endpoint errors - let the component handle them
     // This prevents automatic redirects on login failures
-    if (originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/admin/auth/login')) {
+    if (
+      originalRequest.url?.includes('/auth/login') ||
+      originalRequest.url?.includes('/admin/auth/login') ||
+      originalRequest.url?.includes('/resident-auth/')
+    ) {
       return Promise.reject(error);
     }
 
@@ -190,24 +199,37 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       // Don't retry refresh endpoint itself
-      if (originalRequest.url?.includes('/auth/refresh') || originalRequest.url?.includes('/admin/auth/refresh')) {
-        const redirectPath = window.location.pathname.startsWith('/admin') 
-          ? '/admin/login' 
+      if (
+        originalRequest.url?.includes('/auth/refresh') ||
+        originalRequest.url?.includes('/admin/auth/refresh') ||
+        originalRequest.url?.includes('/resident-auth/refresh')
+      ) {
+        const redirectPath = window.location.pathname.startsWith('/admin')
+          ? '/admin/login'
+          : window.location.pathname.startsWith('/resident')
+          ? '/resident/login'
           : '/login';
         window.location.href = redirectPath;
         return Promise.reject(error);
       }
 
       // Don't retry /auth/me or /admin/auth/me - these are used to check auth status
-      if (originalRequest.url?.includes('/auth/me') || originalRequest.url?.includes('/admin/auth/me')) {
+      if (
+        originalRequest.url?.includes('/auth/me') ||
+        originalRequest.url?.includes('/admin/auth/me') ||
+        originalRequest.url?.includes('/resident-auth/me')
+      ) {
         return Promise.reject(error);
       }
 
       try {
         // Determine which refresh endpoint to use based on current path
-        const refreshEndpoint = window.location.pathname.startsWith('/admin')
-          ? '/admin/auth/refresh'
-          : '/auth/refresh';
+        let refreshEndpoint = '/auth/refresh';
+        if (window.location.pathname.startsWith('/admin')) {
+          refreshEndpoint = '/admin/auth/refresh';
+        } else if (window.location.pathname.startsWith('/resident')) {
+          refreshEndpoint = '/resident-auth/refresh';
+        }
 
         // Refresh token is sent automatically via cookie
         await axios.post(
@@ -220,8 +242,10 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         // Refresh failed, redirect to login
-        const redirectPath = window.location.pathname.startsWith('/admin') 
-          ? '/admin/login' 
+        const redirectPath = window.location.pathname.startsWith('/admin')
+          ? '/admin/login'
+          : window.location.pathname.startsWith('/resident')
+          ? '/resident/login'
           : '/login';
         window.location.href = redirectPath;
         return Promise.reject(refreshError);

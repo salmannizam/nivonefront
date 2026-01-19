@@ -24,6 +24,8 @@ interface Resident {
   expectedVacateDate?: string;
   settlementCompleted?: boolean;
   status: string;
+  portalEnabled?: boolean;
+  personId?: string;
   emergencyContact?: {
     name: string;
     phone: string;
@@ -661,6 +663,9 @@ export default function ResidentsPage() {
                   {t('common.labels.status')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                  Portal
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   {t('common.labels.actions')}
                 </th>
               </tr>
@@ -668,7 +673,7 @@ export default function ResidentsPage() {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {residents.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-lg font-bold">
+                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-lg font-bold">
                     {t('pages.residents.noResidents')}
                   </td>
                 </tr>
@@ -734,6 +739,38 @@ export default function ResidentsPage() {
                           ⚠️ Settlement Pending
                         </div>
                       )}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={(resident as any).portalEnabled || false}
+                          onChange={async (e) => {
+                            try {
+                              await api.patch(`/residents/${resident._id}`, {
+                                portalEnabled: e.target.checked,
+                              });
+                              showSuccess(
+                                e.target.checked
+                                  ? 'Resident portal enabled'
+                                  : 'Resident portal disabled'
+                              );
+                              loadData();
+                            } catch (error: any) {
+                              showError(
+                                error,
+                                error.response?.data?.message || 'Failed to update portal access'
+                              );
+                            }
+                          }}
+                          disabled={resident.status !== 'ACTIVE'}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                        <span className="ml-3 text-sm text-gray-700 dark:text-gray-300">
+                          {(resident as any).portalEnabled ? 'Enabled' : 'Disabled'}
+                        </span>
+                      </label>
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex flex-wrap gap-2">
