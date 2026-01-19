@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError, formatDate } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n-context';
+import { logError, formatDate, showSuccess, showError } from '@/lib/utils';
 
 interface Notice {
   _id: string;
@@ -20,6 +21,7 @@ interface Notice {
 }
 
 export default function NoticesPage() {
+  const { t } = useI18n();
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -185,7 +187,7 @@ export default function NoticesPage() {
             <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-rose-600 via-pink-600 to-fuchsia-600 dark:from-rose-400 dark:via-pink-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
               📢 Notices
             </h1>
-            <p className="text-rose-600 dark:text-rose-400 mt-1 font-medium">Manage announcements and notices</p>
+            <p className="text-rose-600 dark:text-rose-400 mt-1 font-medium">{t('pages.notices.description')}</p>
           </div>
         <button
           onClick={() => {
@@ -203,7 +205,7 @@ export default function NoticesPage() {
           }}
           className="w-full sm:w-auto bg-gradient-to-r from-rose-600 via-pink-600 to-fuchsia-600 hover:from-rose-700 hover:via-pink-700 hover:to-fuchsia-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
         >
-          <span className="text-xl">+</span> Add Notice
+          <span className="text-xl">+</span> {t('pages.notices.addNotice')}
         </button>
       </div>
 
@@ -365,7 +367,7 @@ export default function NoticesPage() {
             {notices.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                  No notices found
+                    {t('pages.notices.noNotices')}
                 </td>
               </tr>
             ) : (

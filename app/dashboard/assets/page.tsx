@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError, formatDate } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n-context';
+import { logError, formatDate, showSuccess, showError } from '@/lib/utils';
 
 interface Asset {
   _id: string;
@@ -30,6 +31,7 @@ interface Room {
 }
 
 export default function AssetsPage() {
+  const { t } = useI18n();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
@@ -228,10 +230,10 @@ export default function AssetsPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 animate-slideInLeft">
           <div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 dark:from-violet-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
-            Assets
+            {t('pages.assets.title')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 font-medium">
-            Total: <span className="font-bold text-gray-900 dark:text-white">{assets.length}</span>
+            {t('pages.assets.total')}: <span className="font-bold text-gray-900 dark:text-white">{assets.length}</span>
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
@@ -240,7 +242,7 @@ export default function AssetsPage() {
             download
             className="w-full sm:w-auto bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 dark:from-green-500 dark:via-emerald-500 dark:to-teal-500 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 dark:hover:from-green-600 dark:hover:via-emerald-600 dark:hover:to-teal-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold text-center"
           >
-            📥 Export CSV
+            📥 {t('pages.assets.exportCSV')}
           </a>
           <button
             onClick={() => {
@@ -264,7 +266,7 @@ export default function AssetsPage() {
             }}
             className="w-full sm:w-auto bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 dark:from-violet-500 dark:via-purple-500 dark:to-fuchsia-500 text-white px-6 py-3 rounded-xl hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 dark:hover:from-violet-600 dark:hover:via-purple-600 dark:hover:to-fuchsia-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
           >
-            + Add Asset
+            + {t('pages.assets.addAsset')}
           </button>
         </div>
       </div>
@@ -315,7 +317,7 @@ export default function AssetsPage() {
                   onChange={(e) => setFormData({ ...formData, roomId: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Select Room</option>
+                  <option value="">{t('forms.placeholders.select')}</option>
                   {rooms.map((r) => (
                     <option key={r._id} value={r._id}>
                       {r.roomNumber}

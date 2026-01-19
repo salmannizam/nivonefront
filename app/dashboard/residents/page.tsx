@@ -644,7 +644,7 @@ export default function ResidentsPage() {
                   {t('common.labels.name')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Contact
+                  {t('pages.visitors.contact')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   {t('pages.residents.room')}

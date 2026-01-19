@@ -3,24 +3,26 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import FeatureGuard from '@/components/FeatureGuard';
-
-const settingsMenu = [
-  { name: 'Features', href: '/dashboard/settings/features', icon: '⚙️', description: 'Manage feature flags' },
-  { name: 'Notifications', href: '/dashboard/settings/notifications', icon: '🔔', description: 'Configure notifications' },
-  { name: 'Profile', href: '/dashboard/settings/profile', icon: '👤', description: 'Your profile settings' },
-  { name: 'Organization', href: '/dashboard/settings/organization', icon: '🏢', description: 'Organization settings' },
-];
+import { useI18n } from '@/lib/i18n-context';
 
 export default function SettingsPage() {
+  const { t } = useI18n();
   const pathname = usePathname();
+  
+  const settingsMenu = [
+    { name: t('pages.settings.features'), href: '/dashboard/settings/features', icon: '⚙️', description: t('pages.settings.features') },
+    { name: t('pages.settings.notifications'), href: '/dashboard/settings/notifications', icon: '🔔', description: t('pages.settings.notifications') },
+    { name: t('pages.settings.profile'), href: '/dashboard/settings/profile', icon: '👤', description: t('pages.settings.profile') },
+    { name: t('pages.settings.organization'), href: '/dashboard/settings/organization', icon: '🏢', description: t('pages.settings.organization') },
+  ];
 
   return (
     <FeatureGuard feature="settings">
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('pages.settings.title')}</h1>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          Manage your account and organization settings
+          {t('pages.settings.title')}
         </p>
       </div>
 

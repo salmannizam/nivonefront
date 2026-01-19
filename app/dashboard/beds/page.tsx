@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
+import { useI18n } from '@/lib/i18n-context';
 import { logError } from '@/lib/utils';
 import { showSuccess, showError, confirmAction } from '@/lib/utils';
 
@@ -23,6 +24,7 @@ interface Room {
 }
 
 export default function BedsPage() {
+  const { t } = useI18n();
   const [beds, setBeds] = useState<Bed[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [buildings, setBuildings] = useState<any[]>([]);
@@ -72,32 +74,32 @@ export default function BedsPage() {
     
     // Client-side validation
     if (!formData.roomId) {
-      showError(null, 'Please select a room');
+      showError(null, t('pages.beds.selectRoom'));
       return;
     }
     if (!formData.bedNumber || formData.bedNumber.trim() === '') {
-      showError(null, 'Bed number is required');
+      showError(null, t('pages.beds.bedNumberRequired'));
       return;
     }
     if (formData.rent < 0) {
-      showError(null, 'Monthly rent cannot be negative');
+      showError(null, t('pages.beds.rentCannotBeNegative'));
       return;
     }
 
     try {
       if (editing) {
         await api.patch(`/beds/${editing._id}`, formData);
-        showSuccess('Bed updated successfully');
+        showSuccess(t('pages.beds.updatedSuccess'));
       } else {
         await api.post('/beds', formData);
-        showSuccess('Bed created successfully');
+        showSuccess(t('pages.beds.createdSuccess'));
       }
       setShowForm(false);
       setEditing(null);
       setFormData({ roomId: '', bedNumber: '', rent: 0, notes: '' });
       loadData();
     } catch (error: any) {
-      showError(error, 'Unable to save bed. Please check all fields and try again.');
+      showError(error, t('common.messages.saveError'));
     }
   };
 
@@ -115,61 +117,61 @@ export default function BedsPage() {
   const handleDelete = async (id: string) => {
     const bed = beds.find((b) => b._id === id);
     const confirmed = await confirmAction(
-      'Delete this bed?',
+      t('pages.beds.deleteConfirm'),
       bed
-        ? `This will permanently delete bed ${bed.bedNumber} in room ${bed.roomNumber}. This action cannot be undone.`
-        : 'This action cannot be undone.'
+        ? t('common.messages.actionCannotUndo')
+        : t('common.messages.actionCannotUndo')
     );
     if (!confirmed) return;
 
     try {
       await api.delete(`/beds/${id}`);
-      showSuccess('Bed deleted successfully');
+      showSuccess(t('pages.beds.deletedSuccess'));
       loadData();
     } catch (error: any) {
-      showError(error, 'Unable to delete bed. It may be assigned to a resident.');
+      showError(error, t('common.messages.deleteError'));
     }
   };
 
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: 'Search',
-      placeholder: 'Search by bed number',
+      label: t('common.buttons.search'),
+      placeholder: t('forms.placeholders.search'),
       advanced: false,
     },
     status: {
       type: 'select' as const,
-      label: 'Status',
+      label: t('common.labels.status'),
       options: [
-        { label: 'All', value: '' },
-        { label: 'Available', value: 'AVAILABLE' },
-        { label: 'Occupied', value: 'OCCUPIED' },
-        { label: 'Maintenance', value: 'MAINTENANCE' },
+        { label: t('common.labels.all'), value: '' },
+        { label: t('pages.beds.available'), value: 'AVAILABLE' },
+        { label: t('pages.beds.occupied'), value: 'OCCUPIED' },
+        { label: t('pages.assets.maintenance'), value: 'MAINTENANCE' },
       ],
       advanced: false,
     },
     roomId: {
       type: 'select' as const,
-      label: 'Room',
+      label: t('pages.beds.room'),
       options: [
-        { label: 'All Rooms', value: '' },
+        { label: t('common.labels.all'), value: '' },
         ...rooms.map((r) => ({ label: r.roomNumber, value: r._id })),
       ],
       advanced: false,
     },
     buildingId: {
       type: 'select' as const,
-      label: 'Building',
+      label: t('pages.rooms.building'),
       options: [
-        { label: 'All Buildings', value: '' },
+        { label: t('common.labels.all'), value: '' },
         ...buildings.map((b) => ({ label: b.name, value: b._id })),
       ],
       advanced: true,
     },
     rentRange: {
       type: 'numberRange' as const,
-      label: 'Monthly Rent Range (₹)',
+      label: t('pages.beds.rent'),
       advanced: true,
     },
   };
@@ -179,7 +181,7 @@ export default function BedsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">Loading beds...</div>
+          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('common.labels.loading')}</div>
         </div>
       </div>
     );
@@ -191,23 +193,23 @@ export default function BedsPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 animate-slideInLeft">
         <div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 dark:from-purple-400 dark:via-pink-400 dark:to-rose-400 bg-clip-text text-transparent">
-            Beds
+            {t('pages.beds.title')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 font-medium">
-            Total: <span className="font-bold text-gray-900 dark:text-white">{beds.length}</span> | Available: <span className="font-bold text-green-600 dark:text-green-400">{beds.filter((b) => b.status === 'AVAILABLE').length}</span> | Occupied:{' '}
+            {t('pages.beds.total')}: <span className="font-bold text-gray-900 dark:text-white">{beds.length}</span> | {t('pages.beds.available')}: <span className="font-bold text-green-600 dark:text-green-400">{beds.filter((b) => b.status === 'AVAILABLE').length}</span> | {t('pages.beds.occupied')}:{' '}
             <span className="font-bold text-blue-600 dark:text-blue-400">{beds.filter((b) => b.status === 'OCCUPIED').length}</span>
           </p>
         </div>
-        <button
-          onClick={() => {
-            setShowForm(true);
-            setEditing(null);
-            setFormData({ roomId: '', bedNumber: '', rent: 0, notes: '' });
-          }}
-          className="w-full sm:w-auto bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 dark:from-purple-500 dark:via-pink-500 dark:to-rose-500 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:via-pink-700 hover:to-rose-700 dark:hover:from-purple-600 dark:hover:via-pink-600 dark:hover:to-rose-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
-        >
-          + Add Bed
-        </button>
+          <button
+            onClick={() => {
+              setShowForm(true);
+              setEditing(null);
+              setFormData({ roomId: '', bedNumber: '', rent: 0, notes: '' });
+            }}
+            className="w-full sm:w-auto bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 dark:from-purple-500 dark:via-pink-500 dark:to-rose-500 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:via-pink-700 hover:to-rose-700 dark:hover:from-purple-600 dark:hover:via-pink-600 dark:hover:to-rose-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
+          >
+            + {t('pages.beds.addBed')}
+          </button>
       </div>
 
       <FilterPanel
@@ -222,12 +224,12 @@ export default function BedsPage() {
         <div className="bg-gradient-to-br from-white via-purple-50/30 to-pink-50/30 dark:from-gray-800 dark:via-purple-900/20 dark:to-pink-900/20 p-4 sm:p-6 rounded-2xl shadow-xl border-2 border-purple-100 dark:border-purple-900/30 mb-6 animate-slideInUp">
           <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent flex items-center gap-2">
             <span className="text-xl">🛏️</span>
-            {editing ? 'Edit Bed' : 'Add New Bed'}
+            {editing ? t('pages.beds.editBed') : t('pages.beds.addBed')}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div className="transform transition-all hover:scale-105">
               <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">
-                Room <span className="text-red-500">*</span>
+                {t('pages.beds.room')} <span className="text-red-500">*</span>
               </label>
               <select
                 required
@@ -235,7 +237,7 @@ export default function BedsPage() {
                 onChange={(e) => setFormData({ ...formData, roomId: e.target.value })}
                 className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-purple-500/50 focus:border-purple-500 transition-all shadow-md hover:shadow-lg"
               >
-                <option value="">Select a room</option>
+                <option value="">{t('pages.beds.selectRoom')}</option>
                 {rooms.map((r) => (
                   <option key={r._id} value={r._id}>
                     {r.roomNumber}
@@ -249,14 +251,14 @@ export default function BedsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div className="transform transition-all hover:scale-105">
                 <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">
-                  Bed Number <span className="text-red-500">*</span>
+                  {t('pages.beds.bedNumber')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={formData.bedNumber}
                   onChange={(e) => setFormData({ ...formData, bedNumber: e.target.value.trim() })}
-                  placeholder="e.g., 1, 2, A, B"
+                  placeholder={t('forms.placeholders.search')}
                   className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-md hover:shadow-lg"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -265,7 +267,7 @@ export default function BedsPage() {
               </div>
               <div className="transform transition-all hover:scale-105">
                 <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">
-                  Monthly Rent (per bed) (₹) <span className="text-red-500">*</span>
+                  {t('pages.beds.rent')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -281,7 +283,7 @@ export default function BedsPage() {
                     });
                   }}
                   className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-green-500/50 focus:border-green-500 transition-all shadow-md hover:shadow-lg"
-                  placeholder="Enter monthly rent amount"
+                  placeholder={t('forms.placeholders.search')}
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   <strong>Source of truth for billing.</strong> This amount is used to generate monthly rent payments. If not provided, will use the room's default bed rent as a fallback.
@@ -305,7 +307,7 @@ export default function BedsPage() {
                 type="submit"
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 dark:from-purple-500 dark:via-pink-500 dark:to-rose-500 text-white rounded-xl hover:from-purple-700 hover:via-pink-700 hover:to-rose-700 dark:hover:from-purple-600 dark:hover:via-pink-600 dark:hover:to-rose-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
               >
-                {editing ? '✨ Update' : '✨ Create'}
+                {editing ? `✨ ${t('common.buttons.update')}` : `✨ ${t('common.buttons.create')}`}
               </button>
               <button
                 type="button"
@@ -315,7 +317,7 @@ export default function BedsPage() {
                 }}
                 className="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-bold transform hover:scale-105"
               >
-                Cancel
+                {t('common.buttons.cancel')}
               </button>
             </div>
           </form>
@@ -328,19 +330,19 @@ export default function BedsPage() {
             <thead className="bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50 dark:from-purple-900/30 dark:via-pink-900/30 dark:to-rose-900/30">
               <tr>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Room
+                  {t('pages.beds.room')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Bed Number
+                  {t('pages.beds.bedNumber')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Rent
+                  {t('pages.beds.rent')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Status
+                  {t('common.labels.status')}
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Actions
+                  {t('common.labels.actions')}
                 </th>
               </tr>
             </thead>
@@ -352,8 +354,8 @@ export default function BedsPage() {
                       <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 flex items-center justify-center mb-3">
                         <span className="text-3xl">🛏️</span>
                       </div>
-                      <p className="text-lg font-bold">No beds found</p>
-                      <p className="text-sm mt-1">Create your first bed to get started</p>
+                      <p className="text-lg font-bold">{t('pages.beds.noBeds')}</p>
+                      <p className="text-sm mt-1">{t('forms.placeholders.search')}</p>
                     </div>
                   </td>
                 </tr>
@@ -385,7 +387,7 @@ export default function BedsPage() {
                               : 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-md'
                         }`}
                       >
-                        {bed.status === 'AVAILABLE' ? '✓ Available' : bed.status === 'OCCUPIED' ? '👤 Occupied' : '🔧 Maintenance'}
+                        {bed.status === 'AVAILABLE' ? `✓ ${t('pages.beds.available')}` : bed.status === 'OCCUPIED' ? `👤 ${t('pages.beds.occupied')}` : `🔧 ${t('pages.assets.maintenance')}`}
                       </span>
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -394,13 +396,13 @@ export default function BedsPage() {
                           onClick={() => handleEdit(bed)}
                           className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                         >
-                          Edit
+                          {t('common.buttons.edit')}
                         </button>
                         <button
                           onClick={() => handleDelete(bed._id)}
                           className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-500 dark:to-rose-500 text-white rounded-lg hover:from-red-700 hover:to-rose-700 dark:hover:from-red-600 dark:hover:to-rose-600 transition-all shadow-md hover:shadow-lg font-bold transform hover:scale-105"
                         >
-                          Delete
+                          {t('common.buttons.delete')}
                         </button>
                       </div>
                     </td>

@@ -6,7 +6,8 @@ import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import TagSelector from '@/components/TagSelector';
 import { useFeatures } from '@/lib/feature-context';
-import { logError, formatDate } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n-context';
+import { logError, formatDate, showSuccess, showError } from '@/lib/utils';
 
 interface RentPayment {
   _id: string;
@@ -70,6 +71,7 @@ interface PaymentSummary {
 }
 
 export default function PaymentsPage() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const { isFeatureEnabled } = useFeatures();
   const [activeSection, setActiveSection] = useState<'rent' | 'extra' | 'deposits'>('rent');
@@ -504,7 +506,7 @@ export default function PaymentsPage() {
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
             }`}
           >
-            Rent Payments
+            {t('pages.payments.rentPayments')}
           </button>
         )}
         {isFeatureEnabled('extraPayments') && (
@@ -516,7 +518,7 @@ export default function PaymentsPage() {
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
             }`}
           >
-            Extra Payments
+            {t('pages.payments.extraPayments')}
           </button>
         )}
         {isFeatureEnabled('securityDeposits') && (
@@ -528,7 +530,7 @@ export default function PaymentsPage() {
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
             }`}
           >
-            Security Deposits
+            {t('pages.payments.securityDeposits')}
           </button>
         )}
       </div>
@@ -537,19 +539,19 @@ export default function PaymentsPage() {
       {activeSection === 'rent' && summary && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-            <h3 className="text-sm text-gray-500 dark:text-gray-400">Due Today</h3>
+            <h3 className="text-sm text-gray-500 dark:text-gray-400">{t('pages.payments.dueToday')}</h3>
             <p className="text-2xl font-bold mt-2 text-gray-900 dark:text-white">{summary.dueToday}</p>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-            <h3 className="text-sm text-gray-500 dark:text-gray-400">Due in 7 Days</h3>
+            <h3 className="text-sm text-gray-500 dark:text-gray-400">{t('pages.payments.dueIn7Days')}</h3>
             <p className="text-2xl font-bold mt-2 text-gray-900 dark:text-white">{summary.dueNext7Days}</p>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-            <h3 className="text-sm text-gray-500 dark:text-gray-400">Overdue</h3>
+            <h3 className="text-sm text-gray-500 dark:text-gray-400">{t('pages.payments.overdue')}</h3>
             <p className="text-2xl font-bold mt-2 text-red-600 dark:text-red-400">{summary.overdue}</p>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-            <h3 className="text-sm text-gray-500 dark:text-gray-400">Total Pending</h3>
+            <h3 className="text-sm text-gray-500 dark:text-gray-400">{t('pages.payments.totalPending')}</h3>
             <p className="text-2xl font-bold mt-2 text-gray-900 dark:text-white">
               ₹{summary.totalPending.toLocaleString()}
             </p>
@@ -566,31 +568,31 @@ export default function PaymentsPage() {
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Month
+                      {t('pages.payments.month')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Resident
+                      {t('pages.payments.resident')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Room
+                      {t('pages.payments.room')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Bed
+                      {t('pages.payments.bed')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Amount Due
+                      {t('pages.payments.amountDue')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Amount Paid
+                      {t('pages.payments.amountPaid')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Due Date
+                      {t('pages.payments.dueDate')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Status
+                      {t('common.labels.status')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Actions
+                      {t('common.labels.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -598,7 +600,7 @@ export default function PaymentsPage() {
                   {rentPayments.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                        No rent payments found. Payments are auto-generated monthly.
+                        {t('pages.payments.noRentPayments')}
                       </td>
                     </tr>
                   ) : (
@@ -657,7 +659,7 @@ export default function PaymentsPage() {
                               }`}
                             >
                               {payment.status}
-                              {isDueToday && ' (Due Today)'}
+                              {isDueToday && ` (${t('pages.payments.dueToday')})`}
                             </span>
                           </td>
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -673,7 +675,7 @@ export default function PaymentsPage() {
                             }}
                             className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                           >
-                            Update
+                            {t('common.buttons.update')}
                           </button>
                         </td>
                       </tr>
@@ -791,19 +793,19 @@ export default function PaymentsPage() {
               }}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
             >
-              + Add Extra Payment
+              + {t('pages.payments.addExtraPayment')}
             </button>
           </div>
 
           {showExtraForm && (
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow mb-6">
               <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                {editingExtra ? 'Edit Extra Payment' : 'Add Extra Payment'}
+                {editingExtra ? t('pages.payments.addExtraPayment') : t('pages.payments.addExtraPayment')}
               </h2>
               <form onSubmit={handleExtraPaymentSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                    Resident
+                    {t('pages.payments.resident')}
                   </label>
                   <select
                     required
@@ -813,7 +815,7 @@ export default function PaymentsPage() {
                     }
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select Resident</option>
+                    <option value="">{t('forms.placeholders.select')}</option>
                     {residents.map((r) => (
                       <option key={r._id} value={r._id}>
                         {r.name}
@@ -937,28 +939,28 @@ export default function PaymentsPage() {
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Resident
+                      {t('pages.payments.resident')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Room
+                      {t('pages.payments.room')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Bed
+                      {t('pages.payments.bed')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Description
+                      {t('pages.payments.description')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Amount
+                      {t('pages.payments.amount')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Date
+                      {t('pages.payments.date')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Payment Mode
+                      {t('pages.payments.paymentMode')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Actions
+                      {t('common.labels.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -966,7 +968,7 @@ export default function PaymentsPage() {
                   {extraPayments.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                        No extra payments found
+                        {t('pages.payments.noExtraPayments')}
                       </td>
                     </tr>
                   ) : (
@@ -1051,14 +1053,14 @@ export default function PaymentsPage() {
               }}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
             >
-              + Add Security Deposit
+              + {t('pages.payments.addSecurityDeposit')}
             </button>
           </div>
 
           {showDepositForm && (
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow mb-6">
               <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                {editingDeposit ? 'Edit Security Deposit' : 'Add Security Deposit'}
+                {editingDeposit ? t('pages.payments.addSecurityDeposit') : t('pages.payments.addSecurityDeposit')}
               </h2>
               <form onSubmit={handleDepositSubmit} className="space-y-4">
                 <div>
@@ -1073,7 +1075,7 @@ export default function PaymentsPage() {
                     }
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select Resident</option>
+                    <option value="">{t('forms.placeholders.select')}</option>
                     {residents.map((r) => (
                       <option key={r._id} value={r._id}>
                         {r.name}
@@ -1110,14 +1112,14 @@ export default function PaymentsPage() {
                     className="mr-2"
                   />
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Deposit Received
+                    {t('pages.payments.received')}
                   </label>
                 </div>
                 {depositFormData.received && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                        Received Date
+                        {t('pages.payments.receivedDate')}
                       </label>
                       <input
                         type="date"
@@ -1130,7 +1132,7 @@ export default function PaymentsPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                        Payment Mode
+                        {t('pages.payments.paymentMode')}
                       </label>
                       <select
                         value={depositFormData.paymentMode}
@@ -1196,31 +1198,31 @@ export default function PaymentsPage() {
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Resident
+                      {t('pages.payments.resident')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Room
+                      {t('pages.payments.room')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Bed
+                      {t('pages.payments.bed')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Amount
+                      {t('pages.payments.amount')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Received
+                      {t('pages.payments.received')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Received Date
+                      {t('pages.payments.receivedDate')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Refunded
+                      {t('pages.payments.refunded')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Refund Amount
+                      {t('pages.payments.refundAmount')}
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                      Actions
+                      {t('common.labels.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -1228,7 +1230,7 @@ export default function PaymentsPage() {
                   {securityDeposits.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                        No security deposits found
+                        {t('pages.payments.noSecurityDeposits')}
                       </td>
                     </tr>
                   ) : (

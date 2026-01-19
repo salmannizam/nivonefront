@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError, formatDateTime } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n-context';
+import { logError, formatDateTime, showSuccess, showError } from '@/lib/utils';
 
 interface GatePass {
   _id: string;
@@ -28,6 +29,7 @@ interface Resident {
 }
 
 export default function GatePassesPage() {
+  const { t } = useI18n();
   const [gatePasses, setGatePasses] = useState<GatePass[]>([]);
   const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
@@ -192,7 +194,7 @@ export default function GatePassesPage() {
           <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400 bg-clip-text text-transparent">
             🚪 Gate Passes
           </h1>
-          <p className="text-emerald-600 dark:text-emerald-400 mt-1 font-medium">Total: {gatePasses.length} passes</p>
+          <p className="text-emerald-600 dark:text-emerald-400 mt-1 font-medium">{t('pages.gatePasses.total')}: {gatePasses.length} {t('pages.gatePasses.passes')}</p>
         </div>
         <button
           onClick={() => {
@@ -211,7 +213,7 @@ export default function GatePassesPage() {
           }}
           className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
         >
-          <span className="text-xl">+</span> Add Gate Pass
+          <span className="text-xl">+</span> {t('pages.gatePasses.addGatePass')}
         </button>
       </div>
 
@@ -237,7 +239,7 @@ export default function GatePassesPage() {
                 onChange={(e) => setFormData({ ...formData, residentId: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Resident</option>
+                <option value="">{t('forms.placeholders.select')}</option>
                 {residents.map((r) => (
                   <option key={r._id} value={r._id}>
                     {r.name}
@@ -344,25 +346,25 @@ export default function GatePassesPage() {
             <thead className="bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-900/30 dark:via-teal-900/30 dark:to-cyan-900/30">
               <tr>
                 <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-                  Resident
+                  {t('pages.gatePasses.resident')}
                 </th>
                 <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-                  Exit Time
+                  {t('pages.gatePasses.exitTime')}
                 </th>
                 <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-                  Expected Return
+                  {t('pages.gatePasses.expectedReturn')}
                 </th>
                 <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-                  Actual Return
+                  {t('pages.gatePasses.actualReturn')}
                 </th>
                 <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-                  Purpose
+                  {t('pages.gatePasses.purpose')}
                 </th>
                 <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-                  Status
+                  {t('common.labels.status')}
                 </th>
                 <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-                  Actions
+                  {t('common.labels.actions')}
                 </th>
               </tr>
             </thead>
@@ -370,7 +372,7 @@ export default function GatePassesPage() {
               {gatePasses.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-3 sm:px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                    No gate passes found
+                    {t('pages.gatePasses.noPasses')}
                   </td>
                 </tr>
               ) : (

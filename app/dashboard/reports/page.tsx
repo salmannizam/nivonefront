@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FeatureGuard from '@/components/FeatureGuard';
+import { useI18n } from '@/lib/i18n-context';
 import { logError } from '@/lib/utils';
 
 interface DashboardStats {
@@ -38,6 +39,7 @@ interface DashboardStats {
 }
 
 export default function ReportsPage() {
+  const { t } = useI18n();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [reportType, setReportType] = useState<string>('dashboard');
@@ -60,7 +62,7 @@ export default function ReportsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-600 dark:text-gray-400">Loading reports...</div>
+        <div className="text-gray-600 dark:text-gray-400">{t('pages.reports.loading')}</div>
       </div>
     );
   }
@@ -68,7 +70,7 @@ export default function ReportsPage() {
   if (!stats) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-red-600 dark:text-red-400">Failed to load report data</div>
+        <div className="text-red-600 dark:text-red-400">{t('pages.reports.failedToLoad')}</div>
       </div>
     );
   }
@@ -77,7 +79,7 @@ export default function ReportsPage() {
     <FeatureGuard feature="reports">
       <div>
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-900 dark:text-white">Reports & Analytics</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-900 dark:text-white">{t('pages.reports.title')}</h1>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setReportType('dashboard')}
@@ -87,7 +89,7 @@ export default function ReportsPage() {
                 : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
             }`}
           >
-            Dashboard
+            {t('pages.reports.dashboard')}
           </button>
           <button
             onClick={() => setReportType('financial')}
@@ -97,7 +99,7 @@ export default function ReportsPage() {
                 : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
             }`}
           >
-            Financial
+            {t('pages.reports.financial')}
           </button>
           <button
             onClick={() => setReportType('occupancy')}
@@ -107,7 +109,7 @@ export default function ReportsPage() {
                 : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
             }`}
           >
-            Occupancy
+            {t('pages.reports.occupancy')}
           </button>
         </div>
       </div>
@@ -116,44 +118,44 @@ export default function ReportsPage() {
         <div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-              <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Residents</h3>
+              <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">{t('pages.reports.totalResidents')}</h3>
               <p className="text-2xl sm:text-3xl font-bold mt-2 text-gray-900 dark:text-white">{stats.residents.total}</p>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {stats.residents.active || 0} active
+                {stats.residents.active || 0} {t('pages.reports.active')}
                 {stats.residents.vacatedThisMonth !== undefined && stats.residents.vacatedThisMonth > 0 && (
                   <span className="ml-2 text-orange-600 dark:text-orange-400">
-                    • {stats.residents.vacatedThisMonth} vacated this month
+                    • {stats.residents.vacatedThisMonth} {t('pages.reports.vacatedThisMonth')}
                   </span>
                 )}
               </p>
             </div>
 
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-              <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">Rooms</h3>
+              <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">{t('pages.reports.rooms')}</h3>
               <p className="text-2xl sm:text-3xl font-bold mt-2 text-gray-900 dark:text-white">{stats.rooms.total}</p>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {stats.rooms.occupied} occupied, {stats.rooms.available} available
+                {stats.rooms.occupied} {t('pages.reports.occupied')}, {stats.rooms.available} {t('pages.reports.available')}
               </p>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Occupancy: {stats.rooms.occupancyRate.toFixed(1)}%
+                {t('pages.reports.occupancyRate')}: {stats.rooms.occupancyRate.toFixed(1)}%
               </p>
             </div>
 
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-              <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">Revenue</h3>
+              <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">{t('pages.reports.revenue')}</h3>
               <p className="text-2xl sm:text-3xl font-bold mt-2 text-gray-900 dark:text-white">
                 ₹{stats.payments.revenue.toLocaleString()}
               </p>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {stats.payments.paid || 0} completed payments
+                {stats.payments.paid || 0} {t('pages.reports.completedPayments')}
               </p>
             </div>
 
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-              <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">Complaints</h3>
+              <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">{t('pages.reports.complaints')}</h3>
               <p className="text-2xl sm:text-3xl font-bold mt-2 text-gray-900 dark:text-white">{stats.complaints.total}</p>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {stats.complaints.open} open
+                {stats.complaints.open} {t('pages.reports.open')}
                 {stats.complaints.pending3Days !== undefined && stats.complaints.pending3Days > 0 && (
                   <span className="ml-2 text-red-600 dark:text-red-400">
                     • {stats.complaints.pending3Days} pending &gt; 3 days
@@ -205,15 +207,15 @@ export default function ReportsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-              <h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-white">Today's Visitors</h3>
+              <h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-white">{t('pages.reports.todaysVisitors')}</h3>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{stats.visitors.today}</p>
             </div>
 
             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-              <h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-white">Occupancy Rate</h3>
+              <h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-white">{t('pages.reports.occupancyRate')}</h3>
               <div className="mt-4">
                 <div className="flex justify-between mb-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Current</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{t('pages.reports.current')}</span>
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
                     {stats.rooms.occupancyRate.toFixed(1)}%
                   </span>

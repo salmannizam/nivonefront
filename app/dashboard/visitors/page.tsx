@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError, formatDate, formatDateTime } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n-context';
+import { logError, formatDate, formatDateTime, showSuccess, showError } from '@/lib/utils';
 
 interface Visitor {
   _id: string;
@@ -26,6 +27,7 @@ interface Resident {
 }
 
 export default function VisitorsPage() {
+  const { t } = useI18n();
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
@@ -151,25 +153,25 @@ export default function VisitorsPage() {
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: 'Search',
-      placeholder: 'Search by name, phone, or purpose',
+      label: t('common.buttons.search'),
+      placeholder: t('forms.placeholders.search'),
       advanced: false,
     },
     status: {
       type: 'select' as const,
-      label: 'Status',
+      label: t('common.labels.status'),
       options: [
-        { label: 'All', value: '' },
-        { label: 'Checked In', value: 'checked_in' },
-        { label: 'Checked Out', value: 'checked_out' },
+        { label: t('common.labels.all'), value: '' },
+        { label: t('pages.visitors.checkIn'), value: 'checked_in' },
+        { label: t('pages.visitors.checkOut'), value: 'checked_out' },
       ],
       advanced: false,
     },
     residentId: {
       type: 'select' as const,
-      label: 'Resident',
+      label: t('pages.visitors.resident'),
       options: [
-        { label: 'All Residents', value: '' },
+        { label: t('common.labels.all'), value: '' },
         ...residents.map((r) => ({ label: r.name, value: r._id })),
       ],
       advanced: true,
@@ -187,9 +189,9 @@ export default function VisitorsPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 animate-slideInDown">
           <div>
             <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-              👥 Visitors
+              👥 {t('pages.visitors.title')}
             </h1>
-            <p className="text-indigo-600 dark:text-indigo-400 mt-1 font-medium">Manage visitor entries and check-ins</p>
+            <p className="text-indigo-600 dark:text-indigo-400 mt-1 font-medium">{t('pages.visitors.description')}</p>
           </div>
         <button
           onClick={() => {
@@ -207,7 +209,7 @@ export default function VisitorsPage() {
           }}
           className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
         >
-          <span className="text-xl">+</span> Add Visitor
+          <span className="text-xl">+</span> {t('pages.visitors.addVisitor')}
         </button>
       </div>
 
@@ -265,7 +267,7 @@ export default function VisitorsPage() {
                   onChange={(e) => setFormData({ ...formData, residentId: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Select Resident</option>
+                  <option value="">{t('forms.placeholders.select')}</option>
                   {residents.map((r) => (
                     <option key={r._id} value={r._id}>
                       {r.name}
@@ -334,31 +336,31 @@ export default function VisitorsPage() {
           <thead className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30">
             <tr>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-                Visitor
+                {t('pages.visitors.visitor')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-                Contact
+                {t('pages.visitors.contact')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-                Resident
+                {t('pages.visitors.resident')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-                Purpose
+                {t('pages.visitors.purpose')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-                Visit Date
+                {t('pages.visitors.visitDate')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-                Check-in
+                {t('pages.visitors.checkIn')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-                Check-out
+                {t('pages.visitors.checkOut')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-                Status
+                {t('common.labels.status')}
               </th>
               <th className="px-3 sm:px-6 py-4 text-left text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-                Actions
+                {t('common.labels.actions')}
               </th>
             </tr>
           </thead>
@@ -366,7 +368,7 @@ export default function VisitorsPage() {
             {visitors.length === 0 ? (
               <tr>
                 <td colSpan={9} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                  No visitors found
+                  {t('pages.visitors.noVisitors')}
                 </td>
               </tr>
             ) : (

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError, formatDate } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n-context';
+import { logError, formatDate, showSuccess, showError } from '@/lib/utils';
 
 interface Complaint {
   _id: string;
@@ -26,6 +27,7 @@ interface Resident {
 }
 
 export default function ComplaintsPage() {
+  const { t } = useI18n();
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,8 +92,9 @@ export default function ComplaintsPage() {
         notes: '',
       });
       loadData();
+      showSuccess(editing ? t('pages.complaints.updatedSuccess') : t('pages.complaints.createdSuccess'));
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to save complaint');
+      showError(error, error.response?.data?.message || t('common.messages.saveError'));
     }
   };
 
@@ -194,7 +197,7 @@ export default function ComplaintsPage() {
       <div className="animate-fadeIn">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 animate-slideInLeft">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 dark:from-orange-400 dark:via-amber-400 dark:to-yellow-400 bg-clip-text text-transparent">
-            Complaints
+            {t('pages.complaints.title')}
           </h1>
         <button
           onClick={() => {
@@ -212,7 +215,7 @@ export default function ComplaintsPage() {
           }}
           className="w-full sm:w-auto bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 dark:from-orange-500 dark:via-amber-500 dark:to-yellow-500 text-white px-6 py-3 rounded-xl hover:from-orange-700 hover:via-amber-700 hover:to-yellow-700 dark:hover:from-orange-600 dark:hover:via-amber-600 dark:hover:to-yellow-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
         >
-          + Add Complaint
+          + {t('pages.complaints.addComplaint')}
         </button>
       </div>
 
@@ -239,7 +242,7 @@ export default function ComplaintsPage() {
                 onChange={(e) => setFormData({ ...formData, residentId: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Resident</option>
+                <option value="">{t('forms.placeholders.select')}</option>
                 {residents.map((r) => (
                   <option key={r._id} value={r._id}>
                     {r.name}
@@ -379,7 +382,7 @@ export default function ComplaintsPage() {
             {complaints.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                  No complaints found
+                    {t('pages.complaints.noComplaints')}
                 </td>
               </tr>
             ) : (
@@ -421,10 +424,10 @@ export default function ComplaintsPage() {
                             : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
                       }`}
                     >
-                      <option value="open">Open</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="resolved">Resolved</option>
-                      <option value="closed">Closed</option>
+                      <option value="open">{t('pages.complaints.open')}</option>
+                      <option value="in_progress">{t('pages.complaints.inProgress')}</option>
+                      <option value="resolved">{t('pages.complaints.resolved')}</option>
+                      <option value="closed">{t('pages.complaints.closed')}</option>
                     </select>
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -436,13 +439,13 @@ export default function ComplaintsPage() {
                         onClick={() => handleEdit(complaint)}
                         className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                       >
-                        Edit
+                        {t('common.buttons.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(complaint._id)}
                         className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                       >
-                        Delete
+                        {t('common.buttons.delete')}
                       </button>
                     </div>
                   </td>

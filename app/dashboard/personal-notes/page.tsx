@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FeatureGuard from '@/components/FeatureGuard';
+import { useI18n } from '@/lib/i18n-context';
 import { logError, showError, showSuccess, formatDateTime } from '@/lib/utils';
 
 interface PersonalNote {
@@ -19,6 +20,7 @@ interface PinnedStats {
 }
 
 export default function PersonalNotesPage() {
+  const { t } = useI18n();
   const [notes, setNotes] = useState<PersonalNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -121,10 +123,10 @@ export default function PersonalNotesPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent">
-              Personal Notes
+              {t('pages.personalNotes.title')}
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Your private notepad and reminders
+              {t('pages.personalNotes.description')}
             </p>
           </div>
           <button
@@ -135,7 +137,7 @@ export default function PersonalNotesPage() {
             }}
             className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
           >
-            + New Note
+            + {t('pages.personalNotes.newNote')}
           </button>
         </div>
 
@@ -143,7 +145,7 @@ export default function PersonalNotesPage() {
         {pinnedStats.count > 0 && (
           <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              📌 {pinnedStats.count} of {pinnedStats.max} notes pinned
+              📌 {pinnedStats.count} {t('pages.personalNotes.of')} {pinnedStats.max} {t('pages.personalNotes.notesPinned')}
             </p>
           </div>
         )}
