@@ -6,7 +6,7 @@ import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
 import TagSelector from '@/components/TagSelector';
 import { useI18n } from '@/lib/i18n-context';
-import { logError, formatDate, showSuccess, showError } from '@/lib/utils';
+import { logError, formatDate, showSuccess, showError, confirmAction } from '@/lib/utils';
 
 interface Resident {
   _id: string;
@@ -239,12 +239,17 @@ export default function ResidentsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this resident?')) return;
+    const confirmed = await confirmAction(
+      t('pages.residents.deleteConfirm'),
+      t('common.messages.actionCannotUndo')
+    );
+    if (!confirmed) return;
     try {
       await api.delete(`/residents/${id}`);
+      showSuccess(t('pages.residents.deletedSuccess'));
       loadData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to delete resident');
+      showError(error, error.response?.data?.message || t('common.messages.deleteError'));
     }
   };
 
@@ -253,7 +258,7 @@ export default function ResidentsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">Loading residents...</div>
+          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('common.labels.loading')}</div>
         </div>
       </div>
     );
@@ -296,7 +301,7 @@ export default function ResidentsPage() {
     },
     buildingId: {
       type: 'select' as const,
-      label: 'Building',
+        label: t('pages.rooms.building'),
       options: [
         { label: 'All Buildings', value: '' },
         ...buildings.map((b) => ({ label: b.name, value: b._id })),

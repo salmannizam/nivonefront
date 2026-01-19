@@ -7,7 +7,8 @@ import { useAuth } from '@/lib/auth-context';
 import { useFeatures } from '@/lib/feature-context';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n-context';
+import { logError, showSuccess, showError, confirmAction } from '@/lib/utils';
 
 interface User {
   _id: string;
@@ -20,6 +21,7 @@ interface User {
 }
 
 export default function UsersPage() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { isFeatureEnabled, loading: featuresLoading } = useFeatures();
   const router = useRouter();
@@ -93,8 +95,9 @@ export default function UsersPage() {
         role: 'STAFF',
       });
       loadUsers();
+      showSuccess(editing ? t('pages.users.updatedSuccess') : t('pages.users.createdSuccess'));
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to save user');
+      showError(error, error.response?.data?.message || t('common.messages.saveError'));
     }
   };
 
@@ -113,32 +116,38 @@ export default function UsersPage() {
   const handleToggleActive = async (id: string, isActive: boolean) => {
     // Prevent users from deactivating themselves
     if (user && user.id === id) {
-      alert('You cannot deactivate your own account. Please ask another administrator to deactivate your account.');
+      showError(null, t('pages.users.cannotDeactivateSelf'));
       return;
     }
     
     try {
       await api.patch(`/users/${id}`, { isActive: !isActive });
+      showSuccess(isActive ? t('pages.users.deactivatedSuccess') : t('pages.users.activatedSuccess'));
       loadUsers();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to update user');
+      showError(error, error.response?.data?.message || t('common.messages.saveError'));
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+    const confirmed = await confirmAction(
+      t('pages.users.deleteConfirm'),
+      t('common.messages.actionCannotUndo')
+    );
+    if (!confirmed) return;
     try {
       await api.delete(`/users/${id}`);
+      showSuccess(t('pages.users.deletedSuccess'));
       loadUsers();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to delete user');
+      showError(error, error.response?.data?.message || t('common.messages.deleteError'));
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-600 dark:text-gray-400">Loading users...</div>
+        <div className="text-gray-600 dark:text-gray-400">{t('common.labels.loading')}</div>
       </div>
     );
   }
@@ -151,18 +160,18 @@ export default function UsersPage() {
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: 'Search',
-      placeholder: 'Search by name or email',
+      label: t('common.buttons.search'),
+      placeholder: t('pages.users.searchByUser'),
       advanced: false,
     },
     role: {
       type: 'select' as const,
-      label: 'Role',
+      label: t('pages.users.role'),
       options: [
-        { label: 'All Roles', value: '' },
-        { label: 'Owner', value: 'OWNER' },
-        { label: 'Manager', value: 'MANAGER' },
-        { label: 'Staff', value: 'STAFF' },
+        { label: t('pages.users.allRoles'), value: '' },
+        { label: t('pages.users.owner'), value: 'OWNER' },
+        { label: t('pages.users.manager'), value: 'MANAGER' },
+        { label: t('pages.users.staff'), value: 'STAFF' },
       ],
       advanced: false,
     },
@@ -172,7 +181,7 @@ export default function UsersPage() {
     <FeatureGuard feature="userManagement">
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Users</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{t('pages.users.title')}</h1>
         <button
           onClick={() => {
             setShowForm(true);
@@ -187,7 +196,7 @@ export default function UsersPage() {
           }}
           className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
         >
-          + Add User
+          + {t('pages.users.addUser')}
         </button>
       </div>
 
@@ -202,12 +211,12 @@ export default function UsersPage() {
       {showForm && (
         <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow mb-6">
           <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-            {editing ? 'Edit User' : 'Add New User'}
+            {editing ? t('pages.users.editUser') : t('pages.users.addUser')}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Name</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.name')}</label>
                 <input
                   type="text"
                   required
@@ -217,7 +226,7 @@ export default function UsersPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.email')}</label>
                 <input
                   type="email"
                   required
@@ -230,7 +239,7 @@ export default function UsersPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Phone</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.phone')}</label>
                 <input
                   type="tel"
                   value={formData.phone}
@@ -239,7 +248,7 @@ export default function UsersPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Role</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.users.role')}</label>
                 <select
                   required
                   value={formData.role}
@@ -247,25 +256,25 @@ export default function UsersPage() {
                   disabled={!!(editing && (user?.role !== 'OWNER' || editing._id === user?.id))}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-500 dark:disabled:text-gray-400 focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="STAFF">Staff</option>
-                  <option value="MANAGER">Manager</option>
-                  {user?.role === 'OWNER' && <option value="OWNER">Owner</option>}
+                  <option value="STAFF">{t('pages.users.staff')}</option>
+                  <option value="MANAGER">{t('pages.users.manager')}</option>
+                  {user?.role === 'OWNER' && <option value="OWNER">{t('pages.users.owner')}</option>}
                 </select>
                 {editing && user?.role !== 'OWNER' && (
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Only OWNER can change user roles
+                    {t('pages.users.onlyOwnerCanChangeRoles')}
                   </p>
                 )}
                 {editing && editing._id === user?.id && (
                   <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                    You cannot change your own role. Please ask another administrator to update your role.
+                    {t('pages.users.cannotChangeOwnRole')}
                   </p>
                 )}
               </div>
             </div>
             {!editing && (
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Password</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.password')}</label>
                 <input
                   type="password"
                   required={!editing}
@@ -277,13 +286,13 @@ export default function UsersPage() {
             )}
             {editing && (
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">New Password (Optional)</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.users.newPassword')} (Optional)</label>
                 <input
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  placeholder="Leave blank to keep current password"
+                  placeholder={t('pages.users.passwordPlaceholder')}
                 />
               </div>
             )}
@@ -292,7 +301,7 @@ export default function UsersPage() {
                 type="submit"
                 className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
               >
-                {editing ? 'Update' : 'Create'}
+                {editing ? t('common.buttons.update') : t('common.buttons.create')}
               </button>
               <button
                 type="button"
@@ -302,7 +311,7 @@ export default function UsersPage() {
                 }}
                 className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               >
-                Cancel
+                {t('common.buttons.cancel')}
               </button>
             </div>
           </form>
@@ -315,22 +324,22 @@ export default function UsersPage() {
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                Name
+                {t('common.labels.name')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                Email
+                {t('common.labels.email')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                Phone
+                {t('common.labels.phone')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                Role
+                {t('pages.users.role')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                Status
+                {t('common.labels.status')}
               </th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                Actions
+                {t('common.labels.actions')}
               </th>
             </tr>
           </thead>
@@ -338,7 +347,7 @@ export default function UsersPage() {
             {users.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                  No users found
+                  {t('pages.users.noUsers')}
                 </td>
               </tr>
             ) : (
@@ -359,7 +368,7 @@ export default function UsersPage() {
                           ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                           : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                       }`}>
-                        {userItem.isActive ? 'Active' : 'Inactive'}
+                        {userItem.isActive ? t('common.labels.active') : t('common.labels.inactive')}
                       </span>
                     ) : userItem._id === user?.id ? (
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -367,7 +376,7 @@ export default function UsersPage() {
                           ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                           : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                       }`}>
-                        {userItem.isActive ? 'Active' : 'Inactive'}
+                        {userItem.isActive ? t('common.labels.active') : t('common.labels.inactive')}
                       </span>
                     ) : (
                       <button
@@ -378,34 +387,34 @@ export default function UsersPage() {
                             : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                         }`}
                       >
-                        {userItem.isActive ? 'Active' : 'Inactive'}
+                        {userItem.isActive ? t('common.labels.active') : t('common.labels.inactive')}
                       </button>
                     )}
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex flex-wrap gap-2">
                       {userItem.role === 'OWNER' && user?.role !== 'OWNER' ? (
-                        <span className="text-gray-400 dark:text-gray-500 text-xs">Only OWNER can edit</span>
+                        <span className="text-gray-400 dark:text-gray-500 text-xs">{t('pages.users.onlyOwnerCanEdit')}</span>
                       ) : (
                         <>
                           <button
                             onClick={() => handleEdit(userItem)}
                             className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                           >
-                            Edit
+                            {t('common.buttons.edit')}
                           </button>
                           <button
                             onClick={() => router.push(`/dashboard/users/${userItem._id}/permissions`)}
                             className="text-purple-600 dark:text-purple-400 hover:text-purple-900 dark:hover:text-purple-300"
                           >
-                            Permissions
+                            {t('pages.users.permissions')}
                           </button>
                           {userItem._id !== user?.id && user?.role === 'OWNER' && (
                             <button
                               onClick={() => handleDelete(userItem._id)}
                               className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                             >
-                              Delete
+                              {t('common.buttons.delete')}
                             </button>
                           )}
                         </>

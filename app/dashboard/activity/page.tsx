@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FeatureGuard from '@/components/FeatureGuard';
+import { useI18n } from '@/lib/i18n-context';
 import { logError, formatDate } from '@/lib/utils';
 
 interface ActivityLog {
@@ -23,6 +24,7 @@ interface ActivityLog {
 }
 
 export default function ActivityPage() {
+  const { t } = useI18n();
   const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState(30);
@@ -75,10 +77,19 @@ export default function ActivityPage() {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    if (diffMins < 1) return t('pages.activity.justNow');
+    if (diffMins < 60) {
+      const key = diffMins === 1 ? 'pages.activity.minutesAgo' : 'pages.activity.minutesAgo_plural';
+      return t(key).replace('{{count}}', diffMins.toString());
+    }
+    if (diffHours < 24) {
+      const key = diffHours === 1 ? 'pages.activity.hoursAgo' : 'pages.activity.hoursAgo_plural';
+      return t(key).replace('{{count}}', diffHours.toString());
+    }
+    if (diffDays < 7) {
+      const key = diffDays === 1 ? 'pages.activity.daysAgo' : 'pages.activity.daysAgo_plural';
+      return t(key).replace('{{count}}', diffDays.toString());
+    }
     // For dates older than 7 days, use dd-mm-yyyy format
     return formatDate(date);
   };
@@ -86,7 +97,7 @@ export default function ActivityPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-600 dark:text-gray-400">Loading activities...</div>
+        <div className="text-gray-600 dark:text-gray-400">{t('common.labels.loading')}</div>
       </div>
     );
   }
@@ -95,28 +106,28 @@ export default function ActivityPage() {
     <FeatureGuard feature="activityLog">
       <div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Activity Timeline</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{t('pages.activity.title')}</h1>
         <div className="flex flex-wrap gap-2">
           <select
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           >
-            <option value={7}>Last 7 days</option>
-            <option value={30}>Last 30 days</option>
-            <option value={60}>Last 60 days</option>
+            <option value={7}>{t('pages.activity.last7Days')}</option>
+            <option value={30}>{t('pages.activity.last30Days')}</option>
+            <option value={60}>{t('pages.activity.last60Days')}</option>
           </select>
           <select
             value={eventType}
             onChange={(e) => setEventType(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           >
-            <option value="">All Events</option>
-            <option value="RESIDENT">Residents</option>
-            <option value="PAYMENT">Payments</option>
-            <option value="BED">Beds</option>
-            <option value="DEPOSIT">Deposits</option>
-            <option value="COMPLAINT">Complaints</option>
+            <option value="">{t('pages.activity.allEvents')}</option>
+            <option value="RESIDENT">{t('pages.activity.residents')}</option>
+            <option value="PAYMENT">{t('pages.activity.payments')}</option>
+            <option value="BED">{t('pages.activity.beds')}</option>
+            <option value="DEPOSIT">{t('pages.activity.deposits')}</option>
+            <option value="COMPLAINT">{t('pages.activity.complaints')}</option>
           </select>
         </div>
       </div>
@@ -124,7 +135,7 @@ export default function ActivityPage() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
         {activities.length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-            No activities found for the selected period.
+            {t('pages.activity.noActivities')}
           </div>
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-700">

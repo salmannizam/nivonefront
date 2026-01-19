@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FeatureGuard from '@/components/FeatureGuard';
-import { logError, showError, showSuccess } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n-context';
+import { logError, showError, showSuccess, confirmAction } from '@/lib/utils';
 
 interface Tag {
   _id: string;
@@ -28,6 +29,7 @@ const DEFAULT_COLORS = [
 ];
 
 export default function TagsPage() {
+  const { t } = useI18n();
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -49,7 +51,7 @@ export default function TagsPage() {
       setTags(response.data);
     } catch (error) {
       logError(error, 'Failed to load tags');
-      showError(error, 'Failed to load tags');
+      showError(error, t('pages.tags.loadError'));
     } finally {
       setLoading(false);
     }
@@ -60,10 +62,10 @@ export default function TagsPage() {
     try {
       if (editing) {
         await api.patch(`/tags/${editing._id}`, formData);
-        showSuccess('Tag updated successfully');
+        showSuccess(t('pages.tags.updatedSuccess'));
       } else {
         await api.post('/tags', formData);
-        showSuccess('Tag created successfully');
+        showSuccess(t('pages.tags.createdSuccess'));
       }
       setShowForm(false);
       setEditing(null);
@@ -71,7 +73,7 @@ export default function TagsPage() {
       loadTags();
     } catch (error: any) {
       logError(error, 'Failed to save tag');
-      showError(error, 'Failed to save tag');
+      showError(error, t('pages.tags.saveError'));
     }
   };
 
@@ -86,25 +88,29 @@ export default function TagsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this tag? This will remove it from all items using it.')) return;
+    const confirmed = await confirmAction(
+      t('pages.tags.deleteConfirm'),
+      t('pages.tags.deleteWarning')
+    );
+    if (!confirmed) return;
     try {
       await api.delete(`/tags/${id}`);
-      showSuccess('Tag deleted successfully');
+      showSuccess(t('pages.tags.deletedSuccess'));
       loadTags();
     } catch (error: any) {
       logError(error, 'Failed to delete tag');
-      showError(error, 'Failed to delete tag');
+      showError(error, t('pages.tags.deleteError'));
     }
   };
 
   const handleToggleActive = async (tag: Tag) => {
     try {
       await api.patch(`/tags/${tag._id}`, { isActive: !tag.isActive });
-      showSuccess(`Tag ${!tag.isActive ? 'activated' : 'deactivated'} successfully`);
+      showSuccess(tag.isActive ? t('pages.tags.deactivatedSuccess') : t('pages.tags.activatedSuccess'));
       loadTags();
     } catch (error: any) {
       logError(error, 'Failed to update tag');
-      showError(error, 'Failed to update tag');
+      showError(error, t('pages.tags.updateError'));
     }
   };
 
@@ -113,7 +119,7 @@ export default function TagsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">Loading tags...</div>
+          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('common.labels.loading')}</div>
         </div>
       </div>
     );
@@ -127,10 +133,10 @@ export default function TagsPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 animate-slideInLeft">
           <div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-              🏷️ Custom Tags
+              🏷️ {t('pages.tags.title')}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Create and manage custom tags for residents, rooms, and payments
+              {t('pages.tags.description')}
             </p>
           </div>
           <button
@@ -141,20 +147,20 @@ export default function TagsPage() {
             }}
             className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-500 dark:via-purple-500 dark:to-pink-500 text-white px-6 py-3 rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 dark:hover:from-indigo-600 dark:hover:via-purple-600 dark:hover:to-pink-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
           >
-            + Create Tag
+            + {t('pages.tags.createTag')}
           </button>
         </div>
 
         {showForm && (
           <div className="bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30 dark:from-gray-800 dark:via-indigo-900/20 dark:to-purple-900/20 p-4 sm:p-6 rounded-2xl shadow-xl border-2 border-indigo-100 dark:border-indigo-900/30 mb-6 animate-slideInUp">
             <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
-              {editing ? 'Edit Tag' : 'Create New Tag'}
+              {editing ? t('pages.tags.editTag') : t('pages.tags.createTag')}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                    Tag Name <span className="text-red-500">*</span>
+                    {t('pages.tags.name')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -162,22 +168,22 @@ export default function TagsPage() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                    placeholder="e.g., VIP, Late payer, Staff friend"
+                    placeholder={t('pages.tags.namePlaceholder')}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Category</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.tags.category')}</label>
                   <input
                     type="text"
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                    placeholder="e.g., Resident, Payment, Room"
+                    placeholder={t('pages.tags.categoryPlaceholder')}
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Color</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.tags.color')}</label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {DEFAULT_COLORS.map((color) => (
                     <button
@@ -202,7 +208,7 @@ export default function TagsPage() {
                   pattern="^#[0-9A-Fa-f]{6}$"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Select a color or enter a hex code
+                  {t('pages.tags.colorHelp')}
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
@@ -210,7 +216,7 @@ export default function TagsPage() {
                   type="submit"
                   className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-indigo-700 hover:to-purple-700 dark:from-indigo-500 dark:to-purple-500 dark:hover:from-indigo-600 dark:hover:to-purple-600 transition-colors font-bold"
                 >
-                  {editing ? 'Update Tag' : 'Create Tag'}
+                  {editing ? t('pages.tags.updateTag') : t('pages.tags.createTag')}
                 </button>
                 <button
                   type="button"
@@ -220,7 +226,7 @@ export default function TagsPage() {
                   }}
                   className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 >
-                  Cancel
+                  {t('common.buttons.cancel')}
                 </button>
               </div>
             </form>
@@ -231,9 +237,9 @@ export default function TagsPage() {
           {tags.length === 0 ? (
             <div className="p-12 text-center">
               <div className="text-6xl mb-4">🏷️</div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No tags yet</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('pages.tags.noTags')}</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Create your first tag to start organizing residents, rooms, and payments
+                {t('pages.tags.noTagsDescription')}
               </p>
               <button
                 onClick={() => {
@@ -243,7 +249,7 @@ export default function TagsPage() {
                 }}
                 className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-colors font-bold"
               >
-                Create Your First Tag
+                {t('pages.tags.createFirstTag')}
               </button>
             </div>
           ) : (
@@ -287,7 +293,7 @@ export default function TagsPage() {
                                   : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                               }`}
                             >
-                              {tag.isActive ? 'Active' : 'Inactive'}
+                              {tag.isActive ? t('common.labels.active') : t('common.labels.inactive')}
                             </button>
                           </div>
                           <div className="flex gap-2 mt-3">
@@ -295,13 +301,13 @@ export default function TagsPage() {
                               onClick={() => handleEdit(tag)}
                               className="flex-1 text-sm bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors font-medium"
                             >
-                              Edit
+                              {t('common.buttons.edit')}
                             </button>
                             <button
                               onClick={() => handleDelete(tag._id)}
                               className="flex-1 text-sm bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-3 py-1.5 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors font-medium"
                             >
-                              Delete
+                              {t('common.buttons.delete')}
                             </button>
                           </div>
                         </div>
