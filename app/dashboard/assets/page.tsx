@@ -168,7 +168,7 @@ export default function AssetsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-violet-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">Loading assets...</div>
+          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('common.labels.loading')}</div>
         </div>
       </div>
     );
@@ -177,27 +177,27 @@ export default function AssetsPage() {
   const filterConfig = {
     search: {
       type: 'text' as const,
-      label: 'Search',
-      placeholder: 'Search by name, serial number, or location',
+      label: t('common.buttons.search'),
+      placeholder: t('pages.assets.searchByAsset'),
       advanced: false,
     },
     status: {
       type: 'select' as const,
-      label: 'Status',
+      label: t('common.labels.status'),
       options: [
-        { label: 'All', value: '' },
-        { label: 'Working', value: 'WORKING' },
-        { label: 'Maintenance', value: 'MAINTENANCE' },
-        { label: 'Broken', value: 'BROKEN' },
-        { label: 'Retired', value: 'RETIRED' },
+        { label: t('common.labels.all'), value: '' },
+        { label: t('pages.assets.working'), value: 'WORKING' },
+        { label: t('pages.assets.maintenance'), value: 'MAINTENANCE' },
+        { label: t('pages.assets.broken'), value: 'BROKEN' },
+        { label: t('pages.assets.retired'), value: 'RETIRED' },
       ],
       advanced: false,
     },
     category: {
       type: 'select' as const,
-      label: 'Category',
+      label: t('pages.assets.category'),
       options: [
-        { label: 'All Categories', value: '' },
+        { label: t('pages.assets.allCategories'), value: '' },
         { label: 'AC', value: 'AC' },
         { label: 'Geyser', value: 'GEYSER' },
         { label: 'RO', value: 'RO' },
@@ -209,17 +209,17 @@ export default function AssetsPage() {
     },
     roomId: {
       type: 'select' as const,
-      label: 'Room',
+      label: t('common.labels.room'),
       options: [
-        { label: 'All Rooms', value: '' },
+        { label: t('pages.assets.allRooms'), value: '' },
         ...rooms.map((r) => ({ label: r.roomNumber, value: r._id })),
       ],
       advanced: true,
     },
     location: {
       type: 'text' as const,
-      label: 'Location',
-      placeholder: 'Filter by location',
+      label: t('pages.assets.location'),
+      placeholder: t('pages.assets.filterByLocation'),
       advanced: true,
     },
   };
@@ -283,12 +283,12 @@ export default function AssetsPage() {
         <div className="bg-gradient-to-br from-white via-violet-50/30 to-purple-50/30 dark:from-gray-800 dark:via-violet-900/20 dark:to-purple-900/20 p-4 sm:p-6 rounded-2xl shadow-xl border-2 border-violet-100 dark:border-violet-900/30 mb-6 animate-slideInUp">
           <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-violet-600 to-purple-600 dark:from-violet-400 dark:to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
             <span className="text-xl">📦</span>
-            {editing ? 'Edit Asset' : 'Add New Asset'}
+            {editing ? t('pages.assets.editAsset') : t('pages.assets.addAsset')}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Name</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.name')}</label>
                 <input
                   type="text"
                   required
@@ -299,7 +299,7 @@ export default function AssetsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Category</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.assets.category')}</label>
                 <input
                   type="text"
                   value={formData.category}
@@ -311,7 +311,7 @@ export default function AssetsPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Room (Optional)</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.room')} (Optional)</label>
                 <select
                   value={formData.roomId}
                   onChange={(e) => setFormData({ ...formData, roomId: e.target.value })}
@@ -326,7 +326,7 @@ export default function AssetsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Location (Optional)</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.assets.location')} (Optional)</label>
                 <input
                   type="text"
                   value={formData.location}
@@ -338,7 +338,7 @@ export default function AssetsPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Brand</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.assets.brand')}</label>
                 <input
                   type="text"
                   value={formData.brand}
@@ -347,7 +347,7 @@ export default function AssetsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Model</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.assets.model')}</label>
                 <input
                   type="text"
                   value={formData.model}
@@ -356,7 +356,7 @@ export default function AssetsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Serial Number</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.assets.serialNumber')}</label>
                 <input
                   type="text"
                   value={formData.serialNumber}
@@ -367,7 +367,7 @@ export default function AssetsPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Purchase Date</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.assets.purchaseDate')}</label>
                 <input
                   type="date"
                   value={formData.purchaseDate}
@@ -376,7 +376,7 @@ export default function AssetsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Warranty Expiry</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.assets.warrantyExpiry')}</label>
                 <input
                   type="date"
                   value={formData.warrantyExpiry}
@@ -387,21 +387,21 @@ export default function AssetsPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Status</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.status')}</label>
                 <select
                   required
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="WORKING">Working</option>
-                  <option value="REPAIR">Repair</option>
-                  <option value="REPLACED">Replaced</option>
-                  <option value="DISPOSED">Disposed</option>
+                  <option value="WORKING">{t('pages.assets.working')}</option>
+                  <option value="REPAIR">{t('pages.assets.repair')}</option>
+                  <option value="REPLACED">{t('pages.assets.replaced')}</option>
+                  <option value="DISPOSED">{t('pages.assets.disposed')}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Next Maintenance Date</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('pages.assets.nextMaintenanceDate')}</label>
                 <input
                   type="date"
                   value={formData.nextMaintenanceDate}
@@ -411,7 +411,7 @@ export default function AssetsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Notes</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('common.labels.notes')}</label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -424,7 +424,7 @@ export default function AssetsPage() {
                 type="submit"
                 className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
               >
-                {editing ? 'Update' : 'Create'}
+                {editing ? t('common.buttons.update') : t('common.buttons.create')}
               </button>
               <button
                 type="button"
@@ -434,7 +434,7 @@ export default function AssetsPage() {
                 }}
                 className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               >
-                Cancel
+                {t('common.buttons.cancel')}
               </button>
             </div>
           </form>

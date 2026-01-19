@@ -333,7 +333,7 @@ export default function PaymentsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-600 dark:text-gray-400">Loading payments...</div>
+        <div className="text-gray-600 dark:text-gray-400">{t('common.labels.loading')}</div>
       </div>
     );
   }
@@ -351,41 +351,41 @@ export default function PaymentsPage() {
       return {
         search: {
           type: 'text' as const,
-          label: 'Search',
-          placeholder: 'Search by resident name or month',
+          label: t('common.buttons.search'),
+          placeholder: t('pages.payments.searchByResidentOrMonth'),
           advanced: false,
         },
         status: {
           type: 'select' as const,
-          label: 'Status',
+          label: t('common.labels.status'),
           options: [
-            { label: 'All', value: '' },
-            { label: 'Upcoming', value: 'UPCOMING' },
-            { label: 'Due', value: 'DUE' },
-            { label: 'Partial', value: 'PARTIAL' },
-            { label: 'Paid', value: 'PAID' },
-            { label: 'Overdue', value: 'OVERDUE' },
+            { label: t('common.labels.all'), value: '' },
+            { label: t('pages.payments.upcoming'), value: 'UPCOMING' },
+            { label: t('pages.payments.due'), value: 'DUE' },
+            { label: t('pages.payments.partial'), value: 'PARTIAL' },
+            { label: t('pages.payments.paid'), value: 'PAID' },
+            { label: t('pages.payments.overdue'), value: 'OVERDUE' },
           ],
           advanced: false,
         },
         residentId: {
           type: 'select' as const,
-          label: 'Resident',
+          label: t('pages.payments.resident'),
           options: [
-            { label: 'All Residents', value: '' },
+            { label: t('pages.payments.allResidents'), value: '' },
             ...residents.map((r) => ({ label: r.name, value: r._id })),
           ],
           advanced: true,
         },
         month: {
           type: 'text' as const,
-          label: 'Month (YYYY-MM)',
-          placeholder: 'e.g., 2024-01',
+          label: t('pages.payments.monthFormat'),
+          placeholder: t('pages.payments.monthExample'),
           advanced: true,
         },
         dateRange: {
           type: 'dateRange' as const,
-          label: 'Due Date Range',
+          label: t('pages.payments.dueDateRange'),
           advanced: true,
         },
       };
@@ -393,27 +393,27 @@ export default function PaymentsPage() {
       return {
         search: {
           type: 'text' as const,
-          label: 'Search',
-          placeholder: 'Search by description or resident name',
+          label: t('common.buttons.search'),
+          placeholder: t('pages.payments.searchByDescriptionOrResident'),
           advanced: false,
         },
         residentId: {
           type: 'select' as const,
-          label: 'Resident',
+          label: t('pages.payments.resident'),
           options: [
-            { label: 'All Residents', value: '' },
+            { label: t('pages.payments.allResidents'), value: '' },
             ...residents.map((r) => ({ label: r.name, value: r._id })),
           ],
           advanced: true,
         },
         dateRange: {
           type: 'dateRange' as const,
-          label: 'Date Range',
+          label: t('pages.payments.dateRange'),
           advanced: true,
         },
         amountRange: {
           type: 'numberRange' as const,
-          label: 'Amount Range (₹)',
+          label: t('pages.payments.amountRange'),
           advanced: true,
         },
       };
@@ -421,42 +421,42 @@ export default function PaymentsPage() {
       return {
         search: {
           type: 'text' as const,
-          label: 'Search',
-          placeholder: 'Search by resident name',
+          label: t('common.buttons.search'),
+          placeholder: t('pages.payments.searchByResident'),
           advanced: false,
         },
         residentId: {
           type: 'select' as const,
-          label: 'Resident',
+          label: t('pages.payments.resident'),
           options: [
-            { label: 'All Residents', value: '' },
+            { label: t('pages.payments.allResidents'), value: '' },
             ...residents.map((r) => ({ label: r.name, value: r._id })),
           ],
           advanced: true,
         },
         received: {
           type: 'select' as const,
-          label: 'Received',
+          label: t('pages.payments.received'),
           options: [
-            { label: 'All', value: '' },
-            { label: 'Yes', value: 'true' },
-            { label: 'No', value: 'false' },
+            { label: t('common.labels.all'), value: '' },
+            { label: t('common.buttons.yes'), value: 'true' },
+            { label: t('common.buttons.no'), value: 'false' },
           ],
           advanced: false,
         },
         refunded: {
           type: 'select' as const,
-          label: 'Refunded',
+          label: t('pages.payments.refunded'),
           options: [
-            { label: 'All', value: '' },
-            { label: 'Yes', value: 'true' },
-            { label: 'No', value: 'false' },
+            { label: t('common.labels.all'), value: '' },
+            { label: t('common.buttons.yes'), value: 'true' },
+            { label: t('common.buttons.no'), value: 'false' },
           ],
           advanced: false,
         },
         amountRange: {
           type: 'numberRange' as const,
-          label: 'Amount Range (₹)',
+          label: t('pages.payments.amountRange'),
           advanced: true,
         },
       };
