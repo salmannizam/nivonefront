@@ -97,17 +97,20 @@ export default function FeaturesSettingsPage() {
     }
   };
 
-  // Get only features that are enabled for the tenant
-  const getEnabledTenantFeatures = () => {
-    return Object.keys(tenantFeatures).filter((key) => tenantFeatures[key] === true);
+  // Get all features assigned to the tenant (enabled or disabled)
+  const getAllTenantFeatures = () => {
+    return Object.keys(tenantFeatures).filter((key) => {
+      // Only show features that have a display name (are valid features)
+      return FEATURE_DISPLAY_NAMES[key] !== undefined;
+    });
   };
 
   // Get features grouped by category
   const getFeaturesByCategory = () => {
-    const enabledFeatures = getEnabledTenantFeatures();
+    const allFeatures = getAllTenantFeatures();
     const grouped: Record<string, string[]> = {};
 
-    enabledFeatures.forEach((key) => {
+    allFeatures.forEach((key) => {
       const displayInfo = FEATURE_DISPLAY_NAMES[key];
       if (displayInfo) {
         const category = displayInfo.category;
@@ -126,7 +129,7 @@ export default function FeaturesSettingsPage() {
 
   // Filter by selected category
   const filteredFeatures = selectedCategory === 'all'
-    ? getEnabledTenantFeatures()
+    ? getAllTenantFeatures()
     : (featuresByCategory[selectedCategory] || []);
 
   if (loading) {
@@ -137,7 +140,8 @@ export default function FeaturesSettingsPage() {
     );
   }
 
-  const enabledCount = getEnabledTenantFeatures().length;
+  const enabledCount = getAllTenantFeatures().filter((key) => tenantFeatures[key] === true).length;
+  const totalCount = getAllTenantFeatures().length;
 
   return (
     <div className="space-y-6">
@@ -148,7 +152,7 @@ export default function FeaturesSettingsPage() {
             Features assigned to your organization by the platform administrator
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-            {enabledCount} feature{enabledCount !== 1 ? 's' : ''} enabled
+            {enabledCount} of {totalCount} feature{totalCount !== 1 ? 's' : ''} enabled
           </p>
         </div>
       </div>
