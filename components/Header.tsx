@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/lib/theme-context';
 import { useI18n } from '@/lib/i18n-context';
+import SearchDropdown from './SearchDropdown';
 import LanguageSelector from './LanguageSelector';
 
 export default function Header() {
@@ -19,11 +20,16 @@ export default function Header() {
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-      <div className="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-          NivaasOne
-        </h2>
-        <div className="flex items-center gap-2 sm:gap-4">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 flex flex-col gap-4 lg:flex-row lg:items-center">
+        <div className="flex items-center justify-between w-full lg:w-auto">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+            NivaasOne
+          </h2>
+        </div>
+        <div className="w-full lg:flex-1">
+          <SearchDropdown />
+        </div>
+        <div className="flex shrink-0 items-center gap-2 sm:gap-4 lg:ml-auto">
           {user && (
             <>
               <span className="hidden sm:inline text-sm text-gray-600 dark:text-gray-300">

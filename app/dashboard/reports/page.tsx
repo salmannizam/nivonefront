@@ -6,6 +6,9 @@ import FeatureGuard from '@/components/FeatureGuard';
 import { useI18n } from '@/lib/i18n-context';
 import { logError } from '@/lib/utils';
 
+// Force dynamic rendering to prevent prerendering errors
+export const dynamic = 'force-dynamic';
+
 interface DashboardStats {
   residents: { 
     total: number; 

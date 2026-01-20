@@ -5,8 +5,11 @@ import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
 import TagSelector from '@/components/TagSelector';
+import { SkeletonCard, SkeletonTableRow } from '@/components/skeletons';
 import { useI18n } from '@/lib/i18n-context';
-import { logError, showSuccess, showError } from '@/lib/utils';
+import toast from '@/components/Toast';
+import { useUndo } from '@/lib/undo-context';
+import { logError, showSuccess, showError, confirmAction } from '@/lib/utils';
 
 interface Room {
   _id: string;
@@ -44,6 +47,7 @@ export default function RoomsPage() {
     amenities: [] as string[],
     tags: [] as string[],
   });
+  const { scheduleUndoableAction, undo } = useUndo();
 
   useEffect(() => {
     loadData();
@@ -115,22 +119,41 @@ export default function RoomsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t('pages.rooms.deleteConfirm'))) return;
-    try {
-      await api.delete(`/rooms/${id}`);
-      showSuccess(t('pages.rooms.deletedSuccess'));
-      loadData();
-    } catch (error: any) {
-      showError(error, error.response?.data?.message || t('common.messages.deleteError'));
-    }
+    const confirmed = await confirmAction(
+      t('pages.rooms.deleteConfirm'),
+      t('common.messages.actionCannotUndo'),
+    );
+    if (!confirmed) return;
+
+    setRooms((prev) => prev.filter((room) => room._id !== id));
+
+    scheduleUndoableAction(`room-${id}`, async () => {
+      try {
+        await api.delete(`/rooms/${id}`);
+      } catch (error: any) {
+        showError(error, error.response?.data?.message || t('common.messages.deleteError'));
+      } finally {
+        loadData();
+      }
+    });
+
+    toast.success(t('pages.rooms.deletedSuccess'), {
+      actionLabel: t('common.buttons.undo'),
+      onAction: () => {
+        undo();
+        loadData();
+      },
+    });
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('common.labels.loading')}</div>
+      <div className="space-y-4">
+        <SkeletonCard lines={2} className="h-24" />
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/50 shadow-inner">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <SkeletonTableRow key={index} columns={8} className="px-4" />
+          ))}
         </div>
       </div>
     );

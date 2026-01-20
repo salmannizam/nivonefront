@@ -9,18 +9,12 @@ import PWASetup from '@/components/PWASetup';
 
 const inter = Inter({ subsets: ['latin'] });
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'NivaasOne - Hostel/PG Management',
   description: 'Multi-tenant Hostel/PG Management Platform',
   manifest: '/manifest.json',
-  themeColor: '#2563eb',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: 'cover',
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -29,6 +23,15 @@ export const metadata: Metadata = {
   icons: {
     apple: '/icons/icon-192x192.png',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+  themeColor: '#2563eb',
 };
 
 export default function RootLayout({

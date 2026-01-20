@@ -17,6 +17,7 @@
     "update": "Update",
     "create": "Create",
     "remove": "Remove",
+    "undo": "Undo",
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No",

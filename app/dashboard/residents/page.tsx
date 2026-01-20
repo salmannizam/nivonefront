@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
+import SkeletonTableRow from '@/components/skeletons/SkeletonTableRow';
 import TagSelector from '@/components/TagSelector';
+import toast from '@/components/Toast';
+import { useUndo } from '@/lib/undo-context';
 import { useI18n } from '@/lib/i18n-context';
 import { useFeatures } from '@/lib/feature-context';
 import { logError, formatDate, showSuccess, showError, confirmAction } from '@/lib/utils';
@@ -61,6 +64,7 @@ interface Bed {
 export default function ResidentsPage() {
   const { t } = useI18n();
   const { isFeatureEnabled } = useFeatures();
+  const { scheduleUndoableAction, undo } = useUndo();
   const isResidentPortalEnabled = isFeatureEnabled('residentPortal');
   const [residents, setResidents] = useState<Resident[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -249,13 +253,26 @@ export default function ResidentsPage() {
       t('common.messages.actionCannotUndo')
     );
     if (!confirmed) return;
-    try {
-      await api.delete(`/residents/${id}`);
-      showSuccess(t('pages.residents.deletedSuccess'));
-      loadData();
-    } catch (error: any) {
-      showError(error, error.response?.data?.message || t('common.messages.deleteError'));
-    }
+
+    setResidents((prev) => prev.filter((resident) => resident._id !== id));
+
+    scheduleUndoableAction(`resident-${id}`, async () => {
+      try {
+        await api.delete(`/residents/${id}`);
+      } catch (error: any) {
+        showError(error, error.response?.data?.message || t('common.messages.deleteError'));
+      } finally {
+        loadData();
+      }
+    });
+
+    toast.success(t('pages.residents.deletedSuccess'), {
+      actionLabel: t('common.buttons.undo'),
+      onAction: () => {
+        undo();
+        loadData();
+      },
+    });
   };
 
   const handleTogglePortalAccess = async (resident: Resident, enabled: boolean) => {
@@ -271,11 +288,19 @@ export default function ResidentsPage() {
   };
 
   if (loading) {
+    const columnCount = isResidentPortalEnabled ? 7 : 6;
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('common.labels.loading')}</div>
+      <div className="space-y-4">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <SkeletonTableRow key={index} columns={columnCount} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );

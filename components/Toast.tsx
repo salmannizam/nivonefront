@@ -4,10 +4,18 @@ import { useEffect, useState } from 'react';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
+interface ToastOptions {
+  actionLabel?: string;
+  onAction?: () => void;
+  duration?: number;
+}
+
 interface Toast {
   id: string;
   message: string;
   type: ToastType;
+  actionLabel?: string;
+  onAction?: (() => void) | undefined;
 }
 
 let toastId = 0;
@@ -15,22 +23,29 @@ const toastListeners: Array<(toasts: Toast[]) => void> = [];
 let toasts: Toast[] = [];
 
 const toast = {
-  success: (message: string) => addToast(message, 'success'),
-  error: (message: string) => addToast(message, 'error'),
-  warning: (message: string) => addToast(message, 'warning'),
-  info: (message: string) => addToast(message, 'info'),
+  success: (message: string, options?: ToastOptions) => addToast(message, 'success', options),
+  error: (message: string, options?: ToastOptions) => addToast(message, 'error', options),
+  warning: (message: string, options?: ToastOptions) => addToast(message, 'warning', options),
+  info: (message: string, options?: ToastOptions) => addToast(message, 'info', options),
 };
 
-function addToast(message: string, type: ToastType) {
+function addToast(message: string, type: ToastType, options?: ToastOptions) {
   const id = (toastId++).toString();
-  const newToast: Toast = { id, message, type };
+  const newToast: Toast = {
+    id,
+    message,
+    type,
+    actionLabel: options?.actionLabel,
+    onAction: options?.onAction,
+  };
   toasts = [...toasts, newToast];
   notifyListeners();
 
-  // Auto remove after 5 seconds
+  // Auto remove after configured duration (default 5 seconds)
+  const timeout = options?.duration ?? 5000;
   setTimeout(() => {
     removeToast(id);
-  }, 5000);
+  }, timeout);
 }
 
 function removeToast(id: string) {
@@ -86,6 +101,17 @@ export function ToastContainer() {
           <div className="flex-1">
             <p className="font-medium text-sm">{toast.message}</p>
           </div>
+          {toast.actionLabel && (
+            <button
+              onClick={() => {
+                toast.onAction?.();
+                removeToast(toast.id);
+              }}
+              className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+            >
+              {toast.actionLabel}
+            </button>
+          )}
           <button
             onClick={() => removeToast(toast.id)}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"

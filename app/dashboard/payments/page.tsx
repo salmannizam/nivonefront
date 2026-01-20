@@ -5,9 +5,12 @@ import { useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import TagSelector from '@/components/TagSelector';
+import toast from '@/components/Toast';
 import { useFeatures } from '@/lib/feature-context';
 import { useI18n } from '@/lib/i18n-context';
-import { logError, formatDate, showSuccess, showError } from '@/lib/utils';
+import { useUndo } from '@/lib/undo-context';
+import { SkeletonCard, SkeletonTableRow } from '@/components/skeletons';
+import { logError, formatDate, showSuccess, showError, confirmAction } from '@/lib/utils';
 
 interface RentPayment {
   _id: string;
@@ -74,6 +77,7 @@ export default function PaymentsPage() {
   const { t } = useI18n();
   const searchParams = useSearchParams();
   const { isFeatureEnabled } = useFeatures();
+  const { scheduleUndoableAction, undo } = useUndo();
   const [activeSection, setActiveSection] = useState<'rent' | 'extra' | 'deposits'>('rent');
   const [rentPayments, setRentPayments] = useState<RentPayment[]>([]);
   const [extraPayments, setExtraPayments] = useState<ExtraPayment[]>([]);
@@ -321,19 +325,50 @@ export default function PaymentsPage() {
   };
 
   const handleDeleteExtra = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this extra payment?')) return;
-    try {
-      await api.delete(`/payments/extra/${id}`);
-      loadData();
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to delete payment');
-    }
+    const confirmed = await confirmAction(
+      t('pages.payments.deleteConfirm') || 'Are you sure you want to delete this extra payment?',
+      t('common.messages.actionCannotUndo'),
+    );
+    if (!confirmed) return;
+
+    setExtraPayments((prev) => prev.filter((payment) => payment._id !== id));
+
+    scheduleUndoableAction(`extra-payment-${id}`, async () => {
+      try {
+        await api.delete(`/payments/extra/${id}`);
+      } catch (error: any) {
+        showError(error, error.response?.data?.message || 'Failed to delete payment');
+      } finally {
+        loadData();
+      }
+    });
+
+    toast.success(t('pages.payments.deletedSuccess'), {
+      actionLabel: t('common.buttons.undo'),
+      onAction: () => {
+        undo();
+        loadData();
+      },
+    });
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-gray-600 dark:text-gray-400">{t('common.labels.loading')}</div>
+      <div className="space-y-6 animate-pulse">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <SkeletonCard key={`summary-${index}`} lines={3} className="h-32" />
+          ))}
+        </div>
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/50 shadow-inner divide-y divide-gray-200 dark:divide-gray-700">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <SkeletonTableRow
+              key={`row-${index}`}
+              columns={activeSection === 'rent' ? 6 : 5}
+              className="px-4"
+            />
+          ))}
+        </div>
       </div>
     );
   }

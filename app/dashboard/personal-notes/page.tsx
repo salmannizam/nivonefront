@@ -3,8 +3,12 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FeatureGuard from '@/components/FeatureGuard';
+import SkeletonListItem from '@/components/skeletons/SkeletonListItem';
 import { useI18n } from '@/lib/i18n-context';
 import { logError, showError, showSuccess, formatDateTime } from '@/lib/utils';
+
+// Force dynamic rendering to prevent prerendering errors
+export const dynamic = 'force-dynamic';
 
 interface PersonalNote {
   _id: string;
@@ -221,11 +225,10 @@ export default function PersonalNotesPage() {
 
         {/* Notes List */}
         {loading ? (
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-              <div className="text-gray-600 dark:text-gray-400 text-lg">Loading notes...</div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SkeletonListItem key={index} className="h-48" />
+            ))}
           </div>
         ) : notes.length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg border-2 border-gray-200 dark:border-gray-700">

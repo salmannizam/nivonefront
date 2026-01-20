@@ -9,6 +9,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { ToastContainer } from '@/components/Toast';
 import { saveTenantSlug, getLastTenantSlug } from '@/lib/tenant-slug-persistence';
 import { getTenantSlug } from '@/lib/auth';
+import { UndoProvider } from '@/lib/undo-context';
 
 export default function DashboardLayout({
   children,
@@ -48,16 +49,18 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen h-screen bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden">
-      <Header />
-      <div className="flex flex-1 pt-16 lg:pt-0 overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 lg:ml-0 overflow-y-auto overflow-x-hidden min-w-0 pb-16 lg:pb-0">
-          {children}
-        </main>
+    <UndoProvider>
+      <div className="min-h-screen h-screen bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden">
+        <Header />
+        <div className="flex flex-1 pt-16 lg:pt-0 overflow-hidden">
+          <Sidebar />
+          <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 lg:ml-0 overflow-y-auto overflow-x-hidden min-w-0 pb-16 lg:pb-0">
+            {children}
+          </main>
+        </div>
+        <MobileBottomNav />
+        <ToastContainer />
       </div>
-      <MobileBottomNav />
-      <ToastContainer />
-    </div>
+    </UndoProvider>
   );
 }

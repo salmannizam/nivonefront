@@ -4,8 +4,11 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
+import { SkeletonCard, SkeletonTableRow } from '@/components/skeletons';
+import toast from '@/components/Toast';
 import { useI18n } from '@/lib/i18n-context';
-import { logError, formatDate, showSuccess, showError } from '@/lib/utils';
+import { useUndo } from '@/lib/undo-context';
+import { logError, formatDate, showSuccess, showError, confirmAction } from '@/lib/utils';
 
 interface Asset {
   _id: string;
@@ -53,6 +56,7 @@ export default function AssetsPage() {
     nextMaintenanceDate: '',
     notes: '',
   });
+  const { scheduleUndoableAction, undo } = useUndo();
 
   useEffect(() => {
     loadData();
@@ -153,22 +157,42 @@ export default function AssetsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this asset?')) return;
-    try {
-      await api.delete(`/assets/${id}`);
-      loadData();
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to delete asset');
-    }
+    const confirmed = await confirmAction(
+      t('pages.assets.deleteConfirm') || 'Are you sure you want to delete this asset?',
+      t('common.messages.actionCannotUndo'),
+    );
+    if (!confirmed) return;
+
+    setAssets((prev) => prev.filter((asset) => asset._id !== id));
+
+    scheduleUndoableAction(`asset-${id}`, async () => {
+      try {
+        await api.delete(`/assets/${id}`);
+      } catch (error: any) {
+        showError(error, error.response?.data?.message || 'Failed to delete asset');
+      } finally {
+        loadData();
+      }
+    });
+
+    toast.success(t('pages.assets.deletedSuccess'), {
+      actionLabel: t('common.buttons.undo'),
+      onAction: () => {
+        undo();
+        loadData();
+      },
+    });
   };
 
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-violet-600 border-t-transparent mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400 text-lg">{t('common.labels.loading')}</div>
+      <div className="space-y-4">
+        <SkeletonCard lines={2} className="h-24" />
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/50 shadow-inner">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <SkeletonTableRow key={index} columns={6} className="px-4" />
+          ))}
         </div>
       </div>
     );
