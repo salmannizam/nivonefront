@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
-import { showError } from '@/lib/utils';
+import { showError, showSuccess } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
 
 interface Feature {
@@ -77,6 +77,26 @@ export default function FeaturesSettingsPage() {
     }
   };
 
+  const handleToggleFeature = async (featureKey: string, enabled: boolean) => {
+    try {
+      await api.patch('/feature-flags/tenant', {
+        features: { [featureKey]: enabled },
+      });
+      
+      // Update local state
+      setTenantFeatures((prev) => ({
+        ...prev,
+        [featureKey]: enabled,
+      }));
+      
+      showSuccess(enabled ? 'Feature enabled' : 'Feature disabled');
+    } catch (error: any) {
+      showError(error, error.response?.data?.message || 'Failed to update feature');
+      // Reload to sync state
+      loadFeatures();
+    }
+  };
+
   // Get only features that are enabled for the tenant
   const getEnabledTenantFeatures = () => {
     return Object.keys(tenantFeatures).filter((key) => tenantFeatures[key] === true);
@@ -136,10 +156,17 @@ export default function FeaturesSettingsPage() {
       {/* Info Banner */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <p className="text-sm text-blue-800 dark:text-blue-200">
-          <strong>Note:</strong> Feature assignments are managed by the platform administrator. 
-          You can assign these features to your users from the{' '}
+          <strong>Note:</strong> Features are assigned by the platform administrator. 
+          You can enable/disable them here. You can also assign features to individual users from the{' '}
           <a href="/dashboard/users" className="underline font-medium">Users</a> page.
         </p>
+        {tenantFeatures.residentPortal && (
+          <p className="text-sm text-blue-800 dark:text-blue-200 mt-2">
+            <strong>Resident Portal:</strong> When enabled, residents can login at{' '}
+            <code className="bg-blue-100 dark:bg-blue-800 px-1.5 py-0.5 rounded">/resident/login</code>{' '}
+            using their mobile number and OTP. No tenant slug required - the system will find their active residencies automatically.
+          </p>
+        )}
       </div>
 
       {/* Category Filter */}
@@ -188,13 +215,15 @@ export default function FeaturesSettingsPage() {
               description: '',
               category: 'other',
             };
+            const isEnabledForTenant = tenantFeatures[featureKey] === true;
             const isEnabledForUser = userFeatures[featureKey] !== false; // Default to true if not set
+            const canToggle = user && (user.role === 'OWNER' || user.role === 'MANAGER');
             
             return (
               <div
                 key={featureKey}
                 className={`p-4 rounded-lg border-2 transition-all ${
-                  isEnabledForUser
+                  isEnabledForTenant
                     ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20'
                     : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
                 }`}
@@ -208,16 +237,28 @@ export default function FeaturesSettingsPage() {
                       {displayInfo.description}
                     </p>
                   </div>
-                  <div className="ml-2">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        isEnabledForUser
-                          ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
-                      }`}
-                    >
-                      {isEnabledForUser ? 'Enabled' : 'Disabled'}
-                    </span>
+                  <div className="ml-2 flex items-center gap-2">
+                    {canToggle ? (
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isEnabledForTenant}
+                          onChange={(e) => handleToggleFeature(featureKey, e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                      </label>
+                    ) : (
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          isEnabledForTenant
+                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                        }`}
+                      >
+                        {isEnabledForTenant ? 'Enabled' : 'Disabled'}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="mt-2">
