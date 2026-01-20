@@ -42,6 +42,27 @@ export default function Home() {
     }
   }, [user, authLoading, router]);
 
+  // Auto-redirect to last tenant slug on PWA open
+  useEffect(() => {
+    if (typeof window === 'undefined' || authLoading || user) return;
+
+    // Only in standalone mode (PWA)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (!isStandalone) return;
+
+    // Check if we're already on a tenant subdomain
+    const currentTenantSlug = getTenantSlug();
+    if (currentTenantSlug) return;
+
+    // Try to get last tenant slug
+    import('@/lib/tenant-slug-persistence').then(({ getLastTenantSlug, redirectToTenantSlug }) => {
+      const lastTenantSlug = getLastTenantSlug();
+      if (lastTenantSlug) {
+        redirectToTenantSlug(lastTenantSlug);
+      }
+    });
+  }, [authLoading, user]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');

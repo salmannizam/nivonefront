@@ -51,6 +51,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!response.user) {
       throw new Error('Login failed. Please try again.');
     }
+    
+    // Save tenant slug for PWA auto-redirect
+    if (tenantSlug) {
+      const { saveTenantSlug } = await import('./tenant-slug-persistence');
+      saveTenantSlug(tenantSlug);
+    }
+    
     setUser(response.user);
   };
 
