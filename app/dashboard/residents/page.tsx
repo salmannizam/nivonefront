@@ -6,6 +6,7 @@ import FilterPanel from '@/components/FilterPanel';
 import FeatureGuard from '@/components/FeatureGuard';
 import TagSelector from '@/components/TagSelector';
 import { useI18n } from '@/lib/i18n-context';
+import { useFeatures } from '@/lib/feature-context';
 import { logError, formatDate, showSuccess, showError, confirmAction } from '@/lib/utils';
 
 interface Resident {
@@ -25,6 +26,7 @@ interface Resident {
   settlementCompleted?: boolean;
   status: string;
   personId?: string;
+  portalEnabled?: boolean;
   emergencyContact?: {
     name: string;
     phone: string;
@@ -58,6 +60,8 @@ interface Bed {
 
 export default function ResidentsPage() {
   const { t } = useI18n();
+  const { isFeatureEnabled } = useFeatures();
+  const isResidentPortalEnabled = isFeatureEnabled('residentPortal');
   const [residents, setResidents] = useState<Resident[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [beds, setBeds] = useState<Bed[]>([]);
@@ -251,6 +255,18 @@ export default function ResidentsPage() {
       loadData();
     } catch (error: any) {
       showError(error, error.response?.data?.message || t('common.messages.deleteError'));
+    }
+  };
+
+  const handleTogglePortalAccess = async (resident: Resident, enabled: boolean) => {
+    try {
+      await api.patch(`/residents/${resident._id}`, {
+        portalEnabled: enabled,
+      });
+      showSuccess(enabled ? 'Portal access enabled' : 'Portal access disabled');
+      loadData();
+    } catch (error: any) {
+      showError(error, error.response?.data?.message || 'Failed to update portal access');
     }
   };
 
@@ -661,6 +677,11 @@ export default function ResidentsPage() {
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   {t('common.labels.status')}
                 </th>
+                {isResidentPortalEnabled && (
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    Portal Access
+                  </th>
+                )}
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   {t('common.labels.actions')}
                 </th>
@@ -669,7 +690,7 @@ export default function ResidentsPage() {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {residents.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-lg font-bold">
+                  <td colSpan={isResidentPortalEnabled ? 7 : 6} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-lg font-bold">
                     {t('pages.residents.noResidents')}
                   </td>
                 </tr>
@@ -736,6 +757,23 @@ export default function ResidentsPage() {
                         </div>
                       )}
                     </td>
+                    {isResidentPortalEnabled && (
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        {resident.status === 'ACTIVE' ? (
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={resident.portalEnabled !== false}
+                              onChange={(e) => handleTogglePortalAccess(resident, e.target.checked)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          </label>
+                        ) : (
+                          <span className="text-xs text-gray-400 dark:text-gray-500">N/A</span>
+                        )}
+                      </td>
+                    )}
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex flex-wrap gap-2">
                         {resident.status !== 'VACATED' && (
