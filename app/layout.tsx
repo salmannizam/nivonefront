@@ -9,8 +9,6 @@ import PWASetup from '@/components/PWASetup';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const dynamic = 'force-dynamic';
-
 export const metadata: Metadata = {
   title: 'NivaasOne - Hostel/PG Management',
   description: 'Multi-tenant Hostel/PG Management Platform',

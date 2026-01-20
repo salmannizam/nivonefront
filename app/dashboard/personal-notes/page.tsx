@@ -1,14 +1,14 @@
 'use client';
 
+// Force dynamic rendering to prevent prerendering errors
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import FeatureGuard from '@/components/FeatureGuard';
 import SkeletonListItem from '@/components/skeletons/SkeletonListItem';
 import { useI18n } from '@/lib/i18n-context';
 import { logError, showError, showSuccess, formatDateTime } from '@/lib/utils';
-
-// Force dynamic rendering to prevent prerendering errors
-export const dynamic = 'force-dynamic';
 
 interface PersonalNote {
   _id: string;
