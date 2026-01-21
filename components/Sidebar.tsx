@@ -169,7 +169,7 @@ export default function Sidebar() {
     }
   }, [pathname, searchParams.toString(), visibleItems.length]);
 
-  // Toggle section
+  // Toggle section - allows multiple sections to be open
   const toggleSection = (sectionKey: string) => {
     setOpenSections((prev) => {
       const newSet = new Set(prev);
@@ -180,15 +180,7 @@ export default function Sidebar() {
           newSet.delete(sectionKey);
         }
       } else {
-        // Accordion behavior: close other sections (except those with active children)
-        const sectionsToKeep = new Set<string>();
-        visibleItems.forEach((item) => {
-          if (item.children && hasActiveChild(item) && item.translationKey !== sectionKey) {
-            sectionsToKeep.add(item.translationKey);
-          }
-        });
-        newSet.clear();
-        sectionsToKeep.forEach((key) => newSet.add(key));
+        // Simply add the section - allow multiple sections to be open
         newSet.add(sectionKey);
       }
       return newSet;

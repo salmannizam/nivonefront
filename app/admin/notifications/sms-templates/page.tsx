@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { logError, showError, showSuccess } from '@/lib/utils';
+import { ADMIN_NAVIGATION_ICONS } from '@/lib/admin-navigation';
 
 type NotificationEvent = 
   | 'resident.created'
@@ -78,12 +79,86 @@ export default function SmsTemplatesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Client-side validation (length/format)
+    const name = (formData.name || '').trim();
+    if (name.length < 2) {
+      showError(null, 'Template name must be at least 2 characters long');
+      return;
+    }
+    if (name.length > 100) {
+      showError(null, 'Template name must not exceed 100 characters');
+      return;
+    }
+
+    const message = (formData.message || '').trim();
+    if (message.length < 10) {
+      showError(null, 'Message template must be at least 10 characters long');
+      return;
+    }
+    if (message.length > 1000) {
+      showError(null, 'Message template must not exceed 1000 characters');
+      return;
+    }
+
+    const dltTemplateId = (formData.dltTemplateId || '').trim();
+    if (!/^\d+$/.test(dltTemplateId)) {
+      showError(null, 'DLT Template ID must contain digits only');
+      return;
+    }
+    if (dltTemplateId.length < 5 || dltTemplateId.length > 50) {
+      showError(null, 'DLT Template ID must be between 5 and 50 digits');
+      return;
+    }
+
+    const dltHeaderId = (formData.dltHeaderId || '').trim();
+    if (dltHeaderId) {
+      if (!/^\d+$/.test(dltHeaderId)) {
+        showError(null, 'DLT Header ID must contain digits only');
+        return;
+      }
+      if (dltHeaderId.length < 5 || dltHeaderId.length > 50) {
+        showError(null, 'DLT Header ID must be between 5 and 50 digits');
+        return;
+      }
+    }
+
+    const varRegex = /^[a-zA-Z0-9_]+$/;
+    for (const v of formData.variables || []) {
+      const vv = (v || '').trim();
+      if (!vv) {
+        showError(null, 'Variable names cannot be empty');
+        return;
+      }
+      if (vv.length > 30) {
+        showError(null, 'Each variable must not exceed 30 characters');
+        return;
+      }
+      if (!varRegex.test(vv)) {
+        showError(null, 'Variables can only contain letters, numbers, and underscores');
+        return;
+      }
+    }
+
     try {
       if (editingTemplate?._id) {
-        await api.patch(`/admin/notifications/sms-templates/${editingTemplate._id}`, formData);
+        await api.patch(`/admin/notifications/sms-templates/${editingTemplate._id}`, {
+          ...formData,
+          name,
+          message,
+          dltTemplateId,
+          dltHeaderId,
+          variables: (formData.variables || []).map((v) => v.trim()).filter(Boolean),
+        });
         showSuccess('SMS template updated successfully');
       } else {
-        await api.post('/admin/notifications/sms-templates', formData);
+        await api.post('/admin/notifications/sms-templates', {
+          ...formData,
+          name,
+          message,
+          dltTemplateId,
+          dltHeaderId,
+          variables: (formData.variables || []).map((v) => v.trim()).filter(Boolean),
+        });
         showSuccess('SMS template created successfully');
       }
       setShowForm(false);
@@ -123,10 +198,20 @@ export default function SmsTemplatesPage() {
   };
 
   const addVariable = () => {
-    if (variableInput.trim() && !formData.variables.includes(variableInput.trim())) {
+    const next = variableInput.trim();
+    if (!next) return;
+    if (!/^[a-zA-Z0-9_]+$/.test(next)) {
+      showError(null, 'Variable must be letters/numbers/underscore only (e.g., name, amount_due)');
+      return;
+    }
+    if (next.length > 30) {
+      showError(null, 'Variable must not exceed 30 characters');
+      return;
+    }
+    if (!formData.variables.includes(next)) {
       setFormData({
         ...formData,
-        variables: [...formData.variables, variableInput.trim()],
+        variables: [...formData.variables, next],
       });
       setVariableInput('');
     }
@@ -155,7 +240,7 @@ export default function SmsTemplatesPage() {
       <div className="mb-6 flex items-center justify-between animate-slideInDown">
         <div>
           <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-            📱 SMS Templates
+            {ADMIN_NAVIGATION_ICONS.SMS_TEMPLATES} SMS Templates
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Manage SMS templates for DLT-compliant notifications
@@ -195,6 +280,8 @@ export default function SmsTemplatesPage() {
                 <input
                   type="text"
                   required
+                  minLength={2}
+                  maxLength={100}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
@@ -226,6 +313,8 @@ export default function SmsTemplatesPage() {
                 <textarea
                   required
                   rows={4}
+                  minLength={10}
+                  maxLength={1000}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder="Example: Hello {name}, your payment of ₹{amount} is due on {dueDate}."
@@ -281,6 +370,10 @@ export default function SmsTemplatesPage() {
                 <input
                   type="text"
                   required
+                  inputMode="numeric"
+                  pattern="^[0-9]+$"
+                  minLength={5}
+                  maxLength={50}
                   value={formData.dltTemplateId}
                   onChange={(e) => setFormData({ ...formData, dltTemplateId: e.target.value })}
                   placeholder="1307170722071080625"
@@ -293,6 +386,10 @@ export default function SmsTemplatesPage() {
                 </label>
                 <input
                   type="text"
+                  inputMode="numeric"
+                  pattern="^[0-9]*$"
+                  minLength={5}
+                  maxLength={50}
                   value={formData.dltHeaderId || ''}
                   onChange={(e) => setFormData({ ...formData, dltHeaderId: e.target.value })}
                   placeholder="1305162746865494108"

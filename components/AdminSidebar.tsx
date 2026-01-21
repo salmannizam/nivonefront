@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { ADMIN_NAVIGATION_ICONS } from '@/lib/admin-navigation';
 
 const adminNavigationItems = [
   {
@@ -38,7 +39,7 @@ const adminNavigationItems = [
   {
     name: 'SMS Templates',
     href: '/admin/notifications/sms-templates',
-    icon: '📱',
+    icon: ADMIN_NAVIGATION_ICONS.SMS_TEMPLATES,
     description: 'Manage SMS templates',
   },
 ];

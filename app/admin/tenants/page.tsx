@@ -104,7 +104,7 @@ export default function AdminTenantsPage() {
               Create New Tenant
             </span>
           </h2>
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6" autoComplete="off">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="transform transition-all hover:scale-105">
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -138,6 +138,7 @@ export default function AdminTenantsPage() {
                 <input
                   type="email"
                   required
+                  autoComplete="off"
                   value={formData.ownerEmail}
                   onChange={(e) => setFormData({ ...formData, ownerEmail: e.target.value })}
                   className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm hover:shadow-md"
@@ -150,6 +151,7 @@ export default function AdminTenantsPage() {
                 <input
                   type="password"
                   required
+                  autoComplete="new-password"
                   value={formData.ownerPassword}
                   onChange={(e) => setFormData({ ...formData, ownerPassword: e.target.value })}
                   className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"

@@ -90,6 +90,41 @@ export default function PlansPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (!formData.name || formData.name.trim().length < 2) {
+      showError(null, 'Plan name must be at least 2 characters long');
+      return;
+    }
+    
+    if (!formData.slug || formData.slug.trim().length < 2) {
+      showError(null, 'Slug must be at least 2 characters long');
+      return;
+    }
+    
+    // Validate slug format
+    const slugRegex = /^[a-z0-9]([a-z0-9\-]*[a-z0-9])?$/;
+    if (!slugRegex.test(formData.slug)) {
+      showError(null, 'Slug must be lowercase alphanumeric with hyphens only. Must start and end with a letter or number.');
+      return;
+    }
+    
+    if (!formData.description || formData.description.trim().length < 10) {
+      showError(null, 'Description must be at least 10 characters long');
+      return;
+    }
+    
+    if (formData.price < 0) {
+      showError(null, 'Price must be 0 or greater');
+      return;
+    }
+    
+    // Validate at least one feature is selected
+    if (!formData.features || formData.features.length === 0) {
+      showError(null, 'Please select at least one feature for this plan');
+      return;
+    }
+    
     try {
       await api.post('/admin/plans', formData);
       showSuccess('Plan created successfully!');
@@ -226,9 +261,12 @@ export default function PlansPage() {
                 <input
                   type="text"
                   required
+                  minLength={2}
+                  maxLength={100}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-md hover:shadow-lg"
+                  placeholder="e.g., Pro Plan"
                 />
               </div>
               <div className="transform transition-all hover:scale-105">
@@ -238,10 +276,17 @@ export default function PlansPage() {
                 <input
                   type="text"
                   required
+                  minLength={2}
+                  maxLength={63}
+                  pattern="[a-z0-9]([a-z0-9\-]*[a-z0-9])?"
                   value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase() })}
+                  onChange={(e) => {
+                    const value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                    setFormData({ ...formData, slug: value });
+                  }}
                   className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-purple-500/50 focus:border-purple-500 transition-all shadow-md hover:shadow-lg"
                   placeholder="pro-plan"
+                  title="Lowercase letters, numbers, and hyphens only. Must start and end with a letter or number."
                 />
               </div>
               <div className="md:col-span-2 transform transition-all hover:scale-105">
@@ -250,10 +295,13 @@ export default function PlansPage() {
                 </label>
                 <textarea
                   required
+                  minLength={10}
+                  maxLength={500}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-md hover:shadow-lg"
                   rows={3}
+                  placeholder="Enter plan description (minimum 10 characters)"
                 />
               </div>
               <div className="transform transition-all hover:scale-105">
@@ -266,8 +314,12 @@ export default function PlansPage() {
                   min="0"
                   step="0.01"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value) || 0;
+                    setFormData({ ...formData, price: value >= 0 ? value : 0 });
+                  }}
                   className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-green-500/50 focus:border-green-500 transition-all shadow-md hover:shadow-lg"
+                  placeholder="0.00"
                 />
               </div>
               <div className="transform transition-all hover:scale-105">
@@ -299,11 +351,30 @@ export default function PlansPage() {
                   <input
                     type="number"
                     min="-1"
-                    value={formData.limits.rooms}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      limits: { ...formData.limits, rooms: parseInt(e.target.value) || -1 }
-                    })}
+                    step="1"
+                    value={formData.limits.rooms === -1 ? '' : formData.limits.rooms}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || value === '-') {
+                        return;
+                      }
+                      const numValue = parseInt(value, 10);
+                      if (!isNaN(numValue) && numValue >= -1) {
+                        setFormData({
+                          ...formData,
+                          limits: { ...formData.limits, rooms: numValue }
+                        });
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || value === '-' || isNaN(parseInt(value, 10))) {
+                        setFormData({
+                          ...formData,
+                          limits: { ...formData.limits, rooms: -1 }
+                        });
+                      }
+                    }}
                     className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-md hover:shadow-lg"
                     placeholder="-1 for unlimited"
                   />
@@ -315,11 +386,30 @@ export default function PlansPage() {
                   <input
                     type="number"
                     min="-1"
-                    value={formData.limits.residents}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      limits: { ...formData.limits, residents: parseInt(e.target.value) || -1 }
-                    })}
+                    step="1"
+                    value={formData.limits.residents === -1 ? '' : formData.limits.residents}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || value === '-') {
+                        return;
+                      }
+                      const numValue = parseInt(value, 10);
+                      if (!isNaN(numValue) && numValue >= -1) {
+                        setFormData({
+                          ...formData,
+                          limits: { ...formData.limits, residents: numValue }
+                        });
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || value === '-' || isNaN(parseInt(value, 10))) {
+                        setFormData({
+                          ...formData,
+                          limits: { ...formData.limits, residents: -1 }
+                        });
+                      }
+                    }}
                     className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-green-500/50 focus:border-green-500 transition-all shadow-md hover:shadow-lg"
                     placeholder="-1 for unlimited"
                   />
@@ -331,11 +421,30 @@ export default function PlansPage() {
                   <input
                     type="number"
                     min="-1"
-                    value={formData.limits.staff}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      limits: { ...formData.limits, staff: parseInt(e.target.value) || -1 }
-                    })}
+                    step="1"
+                    value={formData.limits.staff === -1 ? '' : formData.limits.staff}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || value === '-') {
+                        return;
+                      }
+                      const numValue = parseInt(value, 10);
+                      if (!isNaN(numValue) && numValue >= -1) {
+                        setFormData({
+                          ...formData,
+                          limits: { ...formData.limits, staff: numValue }
+                        });
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || value === '-' || isNaN(parseInt(value, 10))) {
+                        setFormData({
+                          ...formData,
+                          limits: { ...formData.limits, staff: -1 }
+                        });
+                      }
+                    }}
                     className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-purple-500/50 focus:border-purple-500 transition-all shadow-md hover:shadow-lg"
                     placeholder="-1 for unlimited"
                   />
@@ -347,11 +456,30 @@ export default function PlansPage() {
                   <input
                     type="number"
                     min="-1"
-                    value={formData.limits.buildings || -1}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      limits: { ...formData.limits, buildings: parseInt(e.target.value) || -1 }
-                    })}
+                    step="1"
+                    value={formData.limits.buildings === -1 || formData.limits.buildings === undefined ? '' : formData.limits.buildings}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || value === '-') {
+                        return;
+                      }
+                      const numValue = parseInt(value, 10);
+                      if (!isNaN(numValue) && numValue >= -1) {
+                        setFormData({
+                          ...formData,
+                          limits: { ...formData.limits, buildings: numValue }
+                        });
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || value === '-' || isNaN(parseInt(value, 10))) {
+                        setFormData({
+                          ...formData,
+                          limits: { ...formData.limits, buildings: -1 }
+                        });
+                      }
+                    }}
                     className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-md hover:shadow-lg"
                     placeholder="-1 for unlimited"
                   />
@@ -391,7 +519,10 @@ export default function PlansPage() {
             {features.length > 0 && (
               <div className="md:col-span-2">
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
-                  Features (Select features to include in this plan)
+                  Features (Select at least one feature to include in this plan) *
+                  {formData.features.length === 0 && (
+                    <span className="ml-2 text-red-500 text-xs">(Required: Please select at least one feature)</span>
+                  )}
                 </label>
                 <div className="border-2 border-gray-300 dark:border-gray-600 rounded-xl p-4 sm:p-5 max-h-64 overflow-y-auto bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 shadow-inner">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
