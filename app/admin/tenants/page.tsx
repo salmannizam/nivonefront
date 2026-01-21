@@ -13,10 +13,19 @@ interface Tenant {
   createdAt: string;
 }
 
+interface Plan {
+  _id: string;
+  name: string;
+  slug: string;
+  isActive?: boolean;
+}
+
 export default function AdminTenantsPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -29,6 +38,7 @@ export default function AdminTenantsPage() {
 
   useEffect(() => {
     loadTenants();
+    loadPlans();
   }, []);
 
   const loadTenants = async () => {
@@ -40,6 +50,29 @@ export default function AdminTenantsPage() {
       showError(error, 'Failed to load tenants');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPlans = async () => {
+    try {
+      setPlansLoading(true);
+      const response = await api.get('/admin/plans?activeOnly=true').catch(() => ({ data: [] }));
+      const nextPlans: Plan[] = response.data || [];
+      setPlans(nextPlans);
+
+      // If current selected plan isn't in list, default to first plan slug (or keep 'free')
+      if (nextPlans.length > 0) {
+        const selected = (formData.plan || '').toLowerCase();
+        const exists = nextPlans.some((p) => p.slug === selected);
+        if (!exists) {
+          setFormData((prev) => ({ ...prev, plan: nextPlans[0].slug }));
+        }
+      }
+    } catch (error: any) {
+      // Non-blocking; keep fallback plan options
+      setPlans([]);
+    } finally {
+      setPlansLoading(false);
     }
   };
 
@@ -178,9 +211,21 @@ export default function AdminTenantsPage() {
                   onChange={(e) => setFormData({ ...formData, plan: e.target.value })}
                   className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm hover:shadow-md"
                 >
-                  <option value="free">Free</option>
-                  <option value="pro">Pro</option>
-                  <option value="enterprise">Enterprise</option>
+                  {plansLoading ? (
+                    <option value={formData.plan}>Loading plans...</option>
+                  ) : plans.length > 0 ? (
+                    plans.map((p) => (
+                      <option key={p._id} value={p.slug}>
+                        {p.name}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="free">Free</option>
+                      <option value="pro">Pro</option>
+                      <option value="enterprise">Enterprise</option>
+                    </>
+                  )}
                 </select>
               </div>
             </div>
