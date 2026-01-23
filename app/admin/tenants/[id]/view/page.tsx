@@ -42,6 +42,10 @@ export default function TenantViewPage() {
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     if (tenantId) {
@@ -66,6 +70,43 @@ export default function TenantViewPage() {
       showError(error, 'Failed to load tenant data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPassword || newPassword.length < 8) {
+      showError(null, 'Password must be at least 8 characters long');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showError(null, 'Passwords do not match');
+      return;
+    }
+
+    // Validate password strength
+    const hasUpperCase = /[A-Z]/.test(newPassword);
+    const hasLowerCase = /[a-z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+      showError(null, 'Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      await api.post(`/admin/tenants/${tenantId}/change-owner-password`, {
+        password: newPassword,
+      });
+      showSuccess('Owner password changed successfully!');
+      setShowPasswordModal(false);
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      showError(error, 'Failed to change owner password');
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -156,6 +197,12 @@ export default function TenantViewPage() {
               🔔 Notifications
             </button>
             <button
+              onClick={() => setShowPasswordModal(true)}
+              className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-500 dark:to-orange-500 text-white rounded-xl hover:from-yellow-700 hover:to-orange-700 dark:hover:from-yellow-600 dark:hover:to-orange-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold text-sm sm:text-base"
+            >
+              🔑 Change Password
+            </button>
+            <button
               onClick={handleImpersonate}
               className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-500 dark:to-emerald-500 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 dark:hover:from-green-600 dark:hover:to-emerald-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold text-sm sm:text-base"
             >
@@ -164,6 +211,68 @@ export default function TenantViewPage() {
           </div>
         </div>
       </div>
+
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-fadeIn">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md mx-4 animate-slideInUp">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+              <span className="text-3xl">🔑</span>
+              <span>Change Owner Password</span>
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  New Password *
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all"
+                  placeholder="Enter new password (min 8 characters)"
+                  minLength={8}
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Must contain uppercase, lowercase, and number
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Confirm Password *
+                </label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-4 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all"
+                  placeholder="Confirm new password"
+                  minLength={8}
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={handleChangePassword}
+                disabled={changingPassword}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {changingPassword ? 'Changing...' : 'Change Password'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowPasswordModal(false);
+                  setNewPassword('');
+                  setConfirmPassword('');
+                }}
+                className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tenant Info & Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
